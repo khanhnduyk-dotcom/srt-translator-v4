@@ -1,0 +1,14 @@
+*.exe
+*.bat
+*.pyd
+*.log
+__pycache__/
+temp_uploads/
+watch_input/
+watch_output/
+watch_done/
+.git/
+.gitignore
+README.md
+server.log
+*.pyc

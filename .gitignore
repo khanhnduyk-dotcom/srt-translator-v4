@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyd
+*.exe
+*.log
+temp_uploads/
+watch_input/
+watch_output/
+watch_done/
+server.log
+.env
+venv/
+fly.toml

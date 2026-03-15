@@ -1,0 +1,4520 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dịch Phụ Đề SRT — AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #12121a;
+      --bg3: #1a1a28;
+      --card: #15152a;
+      --border: #2a2a45;
+      --border2: #3a3a55;
+      --text: #e8e8f0;
+      --text1: #e8e8f0;
+      --text2: #a0a0b8;
+      --text3: #6a6a85;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --glow: rgba(99, 102, 241, .15);
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, .1);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, .1);
+      --yellow: #eab308;
+      --yellow-bg: rgba(234, 179, 8, .1);
+      --r: 12px;
+      --rs: 8px;
+      --rx: 6px;
+      --font: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ── THEME: Warm Light ── */
+    .theme-light {
+      --bg: #f5f3ef;
+      --bg2: #eceae4;
+      --bg3: #e2dfd8;
+      --card: #ffffff;
+      --border: #d5d0c7;
+      --border2: #c5bfb4;
+      --text: #1a1916;
+      --text1: #1a1916;
+      --text2: #5a5649;
+      --text3: #8a8578;
+      --accent: #5c6bc0;
+      --accent2: #7986cb;
+      --glow: rgba(92,107,192,.12);
+      --green: #2e7d32;
+      --green-bg: rgba(46,125,50,.08);
+      --red: #c62828;
+      --red-bg: rgba(198,40,40,.08);
+      --yellow: #f57f17;
+      --yellow-bg: rgba(245,127,23,.08);
+    }
+
+    /* ── THEME: Cool Gray ── */
+    .theme-gray {
+      --bg: #1e1f26;
+      --bg2: #272830;
+      --bg3: #30313a;
+      --card: #2a2b35;
+      --border: #3d3e4a;
+      --border2: #4d4e5a;
+      --text: #dcdde4;
+      --text1: #dcdde4;
+      --text2: #9a9baa;
+      --text3: #6c6d7e;
+      --accent: #5eadb0;
+      --accent2: #7ec8cb;
+      --glow: rgba(94,173,176,.12);
+      --green: #4caf50;
+      --green-bg: rgba(76,175,80,.1);
+      --red: #e53935;
+      --red-bg: rgba(229,57,53,.1);
+      --yellow: #ffb300;
+      --yellow-bg: rgba(255,179,0,.1);
+    }
+
+    /* ── THEME: Sepia ── */
+    .theme-sepia {
+      --bg: #f4efe6;
+      --bg2: #ebe5d9;
+      --bg3: #e0d9cb;
+      --card: #faf7f0;
+      --border: #d1c8b5;
+      --border2: #bfb5a0;
+      --text: #3d3425;
+      --text1: #3d3425;
+      --text2: #6d6050;
+      --text3: #9a8d7a;
+      --accent: #8b6914;
+      --accent2: #a57e1e;
+      --glow: rgba(139,105,20,.1);
+      --green: #558b2f;
+      --green-bg: rgba(85,139,47,.08);
+      --red: #bf360c;
+      --red-bg: rgba(191,54,12,.08);
+      --yellow: #e65100;
+      --yellow-bg: rgba(230,81,0,.08);
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden
+    }
+
+    .search-hit { background: rgba(234, 179, 8, 0.15) !important; border-left: 3px solid var(--yellow) !important; }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none
+    }
+
+    input,
+    textarea,
+    select {
+      font-family: inherit;
+      outline: none;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: var(--rx);
+      padding: 7px 11px;
+      font-size: 12px;
+      width: 100%;
+      transition: border-color .15s
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent)
+    }
+
+    select {
+      cursor: pointer
+    }
+
+    textarea {
+      resize: vertical;
+      line-height: 1.5
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px
+    }
+
+    /* Layout */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-weight: 700
+    }
+
+    .badge-idle {
+      background: var(--bg3);
+      color: var(--text3)
+    }
+
+    .badge-work {
+      background: var(--glow);
+      color: var(--accent2);
+      animation: pulse 2s infinite
+    }
+
+    .badge-done {
+      background: var(--green-bg);
+      color: var(--green)
+    }
+
+    .badge-err {
+      background: var(--red-bg);
+      color: var(--red)
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .5
+      }
+    }
+
+    .hact {
+      margin-left: auto;
+      display: flex;
+      gap: 6px
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 330px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column
+    }
+
+    .step {
+      border-bottom: 1px solid var(--border);
+      padding: 14px
+    }
+
+    .step-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .step-num.done {
+      background: var(--green)
+    }
+
+    .step-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text2)
+    }
+
+    .label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 4px;
+      display: block;
+      margin-top: 8px
+    }
+
+    .label:first-child {
+      margin-top: 0
+    }
+
+    .row {
+      display: flex;
+      gap: 6px
+    }
+
+    .row>* {
+      flex: 1
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 7px 16px;
+      border-radius: var(--rx);
+      font-size: 12px;
+      font-weight: 700;
+      transition: all .15s;
+      letter-spacing: .2px
+    }
+
+    .btn-p {
+      background: var(--accent);
+      color: #fff
+    }
+
+    .btn-p:hover {
+      background: var(--accent2);
+      transform: translateY(-1px)
+    }
+
+    .btn-p:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .btn-g {
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid var(--border)
+    }
+
+    .btn-g:hover {
+      background: var(--bg3);
+      color: var(--text)
+    }
+
+    .btn-d {
+      background: var(--red);
+      color: #fff
+    }
+
+    .btn-d:hover {
+      opacity: .85
+    }
+
+    .btn-s {
+      background: var(--green);
+      color: #fff
+    }
+
+    .btn-s:hover {
+      opacity: .85
+    }
+
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 11px
+    }
+
+    .btn-full {
+      width: 100%;
+      margin-top: 4px
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--r);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative
+    }
+
+    .dropzone:hover,
+    .dropzone.on {
+      border-color: var(--accent);
+      background: var(--glow)
+    }
+
+    .dropzone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer
+    }
+
+    .dz-icon {
+      font-size: 28px;
+      margin-bottom: 6px
+    }
+
+    .dz-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2)
+    }
+
+    .dz-sub {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 3px
+    }
+
+    .file-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--glow);
+      border: 1px solid rgba(99, 102, 241, .2);
+      border-radius: var(--rx);
+      margin-top: 8px
+    }
+
+    .file-pill-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent2);
+      flex: 1;
+      word-break: break-all
+    }
+
+    .file-pill-meta {
+      font-size: 10px;
+      color: var(--text3)
+    }
+
+    .file-pill-rm {
+      background: none;
+      color: var(--text3);
+      padding: 1px 5px;
+      border-radius: 3px
+    }
+
+    .file-pill-rm:hover {
+      color: var(--red)
+    }
+
+    /* Provider chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px
+    }
+
+    .chip {
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--bg3);
+      color: var(--text2);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .chip:hover,
+    .chip.act {
+      background: var(--glow);
+      border-color: var(--accent);
+      color: var(--accent2)
+    }
+
+    /* Progress */
+    .prog-bar {
+      width: 100%;
+      height: 5px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 6px 0
+    }
+
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 3px;
+      transition: width .3s
+    }
+
+    .prog-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text2);
+      font-weight: 600
+    }
+
+    /* Val */
+    .val-item {
+      display: flex;
+      gap: 7px;
+      padding: 5px 0;
+      font-size: 11px
+    }
+
+    .val-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-top: 3px;
+      flex-shrink: 0
+    }
+
+    .val-dot.ok {
+      background: var(--green)
+    }
+
+    .val-dot.e {
+      background: var(--red)
+    }
+
+    .val-dot.w {
+      background: var(--yellow)
+    }
+
+    .val-txt {
+      color: var(--text2);
+      line-height: 1.4;
+      flex: 1
+    }
+
+    /* Editor */
+    .editor {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .tab {
+      padding: 11px 20px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      color: var(--text3);
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+      text-transform: uppercase
+    }
+
+    .tab:hover {
+      color: var(--text2)
+    }
+
+    .tab.act {
+      color: var(--accent2);
+      border-bottom-color: var(--accent)
+    }
+
+    .tab .cnt {
+      display: inline-block;
+      min-width: 16px;
+      height: 16px;
+      line-height: 16px;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 800;
+      border-radius: 8px;
+      margin-left: 5px;
+      background: var(--bg3);
+      color: var(--text3)
+    }
+
+    .tab.act .cnt {
+      background: var(--glow);
+      color: var(--accent2)
+    }
+
+    .econtent {
+      flex: 1;
+      overflow: hidden;
+      display: flex
+    }
+
+    .pane {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .pane.act {
+      display: flex
+    }
+
+    /* Sub list */
+    .sub-hdr {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0
+    }
+
+    .sub-hdr-col {
+      flex: 1;
+      padding: 8px 14px;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text3)
+    }
+
+    .sub-hdr-col:first-child {
+      max-width: 52px;
+      text-align: center;
+      border-right: 1px solid var(--border)
+    }
+
+    .sub-hdr-col:nth-child(2) {
+      border-right: 1px solid var(--border)
+    }
+
+    .sub-list {
+      flex: 1;
+      overflow-y: auto
+    }
+
+    .sub-row {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      transition: background .1s
+    }
+
+    .sub-row:hover {
+      background: var(--bg3)
+    }
+
+    .sub-row.err {
+      background: var(--red-bg)
+    }
+
+    .sub-row.warn {
+      background: var(--yellow-bg)
+    }
+
+    .sub-cell {
+      flex: 1;
+      padding: 8px 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      min-height: 44px
+    }
+
+    .sub-cell:first-child {
+      max-width: 52px;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text3);
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .sub-cell:nth-child(2) {
+      border-right: 1px solid var(--border);
+      color: var(--text2)
+    }
+
+    .sub-ta {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.6;
+      width: 100%;
+      resize: none;
+      font-family: var(--font)
+    }
+
+    .sub-ta:focus {
+      outline: none;
+      background: var(--glow)
+    }
+
+    .sub-ts {
+      font-size: 9px;
+      color: var(--text3);
+      font-family: monospace;
+      margin-bottom: 2px
+    }
+
+    .btn-retry {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text3);
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: all .15s;
+      float: right;
+    }
+
+    .btn-retry:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: var(--glow)
+    }
+
+    .btn-retry:disabled {
+      opacity: .3;
+      cursor: not-allowed
+    }
+
+    .btn-retry.spinning {
+      animation: spin .7s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* API detail collapsible */
+    .api-detail {
+      display: none;
+      margin-top: 6px
+    }
+
+    .api-detail.open {
+      display: block
+    }
+
+    .toggle-api {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--rx);
+      padding: 5px 10px;
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 6px;
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .toggle-api:hover {
+      border-color: var(--accent);
+      color: var(--text)
+    }
+
+    .toggle-api-arrow {
+      margin-left: auto;
+      transition: transform .2s
+    }
+
+    .toggle-api.open .toggle-api-arrow {
+      transform: rotate(180deg)
+    }
+
+    /* Style presets */
+    .style-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 5px 0
+    }
+
+    .schip {
+      padding: 3px 9px;
+      font-size: 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      color: var(--text2);
+      transition: all .15s;
+      white-space: nowrap
+    }
+
+    .schip:hover {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: var(--glow)
+    }
+
+    .schip.act {
+      border-color: var(--accent);
+      color: var(--accent2);
+      background: var(--glow)
+    }
+
+    .empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: .35
+    }
+
+    .empty-ico {
+      font-size: 44px
+    }
+
+    .empty-txt {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    /* Prompt / Log panes */
+    .ppane {
+      padding: 14px;
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px
+    }
+
+    .ppane textarea {
+      flex: 1;
+      padding: 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
+      resize: none;
+      min-height: 120px
+    }
+
+    .log-pre {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 14px;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--text2);
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-y: auto
+    }
+
+    /* Statusbar */
+    .sbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 20px;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      font-size: 10px;
+      color: var(--text3)
+    }
+
+    .sdot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green)
+    }
+
+    /* Estimation panel */
+    .est-panel {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--rx);
+      padding: 8px 10px;
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 8px;
+      display: none;
+      line-height: 1.8
+    }
+
+    .est-row {
+      display: flex;
+      justify-content: space-between
+    }
+
+    .est-val {
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .warn-rate {
+      background: var(--yellow-bg);
+      border: 1px solid var(--yellow);
+      border-radius: var(--rx);
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--yellow);
+      margin-top: 6px;
+      display: none
+    }
+
+    /* Key rotation textarea */
+    .key-ta {
+      resize: vertical;
+      min-height: 54px;
+      font-family: monospace;
+      font-size: 11px;
+      line-height: 1.7
+    }
+
+    .key-hint {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 3px
+    }
+
+    /* Delay slider */
+    .delay-wrap {
+      margin-top: 6px
+    }
+
+    .delay-sliders {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px
+    }
+
+    .delay-sliders input[type=range] {
+      flex: 1;
+      height: 4px;
+      padding: 0;
+      accent-color: var(--accent);
+      background: var(--bg3);
+      border: none;
+      border-radius: 2px;
+      cursor: pointer
+    }
+
+    .delay-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent2);
+      min-width: 30px;
+      text-align: right
+    }
+
+    .delay-sep {
+      font-size: 10px;
+      color: var(--text3)
+    }
+
+    /* two-col grid */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 2px
+    }
+
+    .two-col>* {
+      min-width: 0
+    }
+
+    .delay-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 7px;
+      border-radius: 10px;
+      background: var(--glow);
+      color: var(--accent2);
+      margin-left: 6px;
+      font-weight: 700
+    }
+
+    /* History list */
+    .hist-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .1s
+    }
+
+    .hist-item:hover {
+      background: var(--bg3)
+    }
+
+    .hist-meta {
+      flex: 1;
+      font-size: 11px;
+      color: var(--text2)
+    }
+
+    .hist-meta strong {
+      display: block;
+      color: var(--text);
+      font-size: 12px
+    }
+
+    .hist-del {
+      background: none;
+      color: var(--text3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 12px
+    }
+
+    .hist-del:hover {
+      color: var(--red)
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="logo">⚡ Dịch Phụ Đề SRT</div>
+      <span id="badge" class="badge badge-idle">SẴN SÀNG</span>
+      <div class="hact" style="display:flex;align-items:center;gap:8px">
+        <!-- Theme picker -->
+        <div id="themePicker" style="display:flex;gap:5px;align-items:center">
+          <button onclick="setTheme('')" title="Dark" style="width:18px;height:18px;border-radius:50%;background:#6366f1;border:2px solid #6366f1;cursor:pointer;padding:0"></button>
+          <button onclick="setTheme('theme-light')" title="Light" style="width:18px;height:18px;border-radius:50%;background:#f5f3ef;border:2px solid #d5d0c7;cursor:pointer;padding:0"></button>
+          <button onclick="setTheme('theme-gray')" title="Gray" style="width:18px;height:18px;border-radius:50%;background:#5eadb0;border:2px solid #5eadb0;cursor:pointer;padding:0"></button>
+          <button onclick="setTheme('theme-sepia')" title="Sepia" style="width:18px;height:18px;border-radius:50%;background:#c8a96e;border:2px solid #bfb5a0;cursor:pointer;padding:0"></button>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="resetAll()">🔄</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+
+        <!-- BƯỚC 1: TẢI FILE -->
+        <div class="step">
+          <div class="step-head">
+            <div class="step-num" id="sn1">1</div>
+            <div class="step-title">Tải file phụ đề</div>
+          </div>
+          <div class="dropzone" id="dz" ondragover="event.preventDefault();this.classList.add('on')"
+            ondragleave="this.classList.remove('on')" ondrop="onDrop(event)">
+            <div class="dz-icon">📄</div>
+            <div class="dz-text">Kéo thả file .srt vào đây</div>
+            <div class="dz-sub">hoặc bấm để chọn file · kéo nhiều file để auto-queue</div>
+            <input type="file" accept=".srt" multiple onchange="handleFileInput(this.files)">
+          </div>
+          <div id="filePill" style="display:none"></div>
+          <!-- File Queue Panel -->
+          <div id="queuePanel" style="display:none;margin-top:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);font-size:11px">
+            <div style="font-weight:600;margin-bottom:4px;color:var(--text2)">📁 Hàng đợi file</div>
+            <div id="queueList"></div>
+          </div>
+        </div>
+
+        <!-- BƯỚC 2: CẤU HÌNH & DỊCH -->
+        <div class="step">
+          <div class="step-head">
+            <div class="step-num" id="sn2">2</div>
+            <div class="step-title">Cấu hình & Dịch</div>
+          </div>
+          <!-- Compact AI pill + Settings button -->
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <div id="aiPill" style="flex:1;padding:6px 10px;background:var(--glow);border:1px solid rgba(99,102,241,.15);border-radius:var(--rs);font-size:11px;color:var(--text2)">
+              ✨ Gemini 2.5 Flash · <span id="aiKeyCount">0</span> keys
+            </div>
+            <button class="btn btn-sm" style="padding:6px 12px;font-size:12px;white-space:nowrap" onclick="toggleSettings()">⚙️</button>
+          </div>
+          <!-- Settings panel (collapsed) -->
+          <div id="settingsPanel" style="display:none;border:1px solid var(--border);border-radius:var(--rs);padding:10px;background:var(--card);margin-bottom:8px">
+            <div style="font-weight:600;font-size:12px;margin-bottom:8px;color:var(--text)">⚙️ Cài đặt AI</div>
+            <span class="label">Nhà cung cấp AI</span>
+            <select id="provSelect" onchange="pick(this.value)" style="margin-bottom:6px">
+              <option value="cliproxy">🔵 CLIProxy (local)</option>
+              <option value="gemini">✨ Gemini (Google)</option>
+              <option value="openai">🟢 OpenAI (GPT)</option>
+              <option value="deepseek">🔷 DeepSeek</option>
+              <option value="claude">🟠 Claude (Anthropic)</option>
+              <option value="groq">⚡ Groq (Free)</option>
+              <option value="ollama">🏠 Ollama (Local AI)</option>
+              <option value="python_backend">🐍 Python Backend</option>
+            </select>
+            <span class="label">🤖 Model AI</span>
+            <select id="mdlSelect" onchange="G('mdl').value=this.value; updateEst(); updateAiPill(); autoBatch()"
+              style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text1);font-size:13px;margin-bottom:6px">
+            </select>
+            <input id="mdl" type="hidden" value="gemini-2.5-flash">
+            <input id="apiUrl" type="hidden">
+          <!-- API detail toggle preserved -->
+
+            <!-- Single-provider key area (non-python_backend) -->
+            <div id="singleKeyArea">
+              <span class="label">API Keys — mỗi dòng 1 key <span style="color:var(--text3)">(nhiều key = xoay
+                  vòng)</span></span>
+              <textarea id="key" class="key-ta" placeholder="sk-abc123&#10;sk-def456"
+                oninput="activeProv=G('provSelect').value; saveProviderKey(activeProv, this.value); updateEst()"></textarea>
+              <div class="key-hint" id="keyHint">1 key · không xoay vòng</div>
+            </div>
+
+            <!-- Mixed-provider key area (python_backend) -->
+            <div id="mixedKeyArea" style="display:none">
+              <div style="background:var(--glow);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:10px;margin-bottom:8px">
+                <div style="font-size:11px;font-weight:700;color:var(--accent2);margin-bottom:4px">🔀 Mixed Provider — Dùng cả Groq + Gemini cùng lúc!</div>
+                <div style="font-size:10px;color:var(--text3)">Nhập key vào ô tương ứng. Hệ thống tự route đúng endpoint cho mỗi key.</div>
+              </div>
+
+              <!-- Groq keys -->
+              <div style="margin-bottom:10px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span style="font-size:11px;font-weight:700;color:#f97316">⚡ Groq Keys</span>
+                  <span id="groqKeyCount" style="font-size:10px;color:var(--text3)">0 keys</span>
+                </div>
+                <select id="groqModelSelect" onchange="updateMixedEst()"
+                  style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11px;margin-bottom:4px">
+                  <option value="llama-3.3-70b-versatile">🦙 LLaMA 3.3 70B Versatile</option>
+                  <option value="llama-3.1-8b-instant">⚡ LLaMA 3.1 8B Instant</option>
+                  <option value="deepseek-r1-distill-llama-70b">🧠 DeepSeek R1 LLaMA 70B</option>
+                  <option value="gemma2-9b-it">💎 Gemma 2 9B IT</option>
+                  <option value="mixtral-8x7b-32768">🔀 Mixtral 8x7B</option>
+                </select>
+                <textarea id="groqKeys" rows="3" placeholder="gsk_abc123&#10;gsk_def456&#10;(mỗi dòng 1 key Groq)"
+                  style="font-size:11px" oninput="updateMixedEst(); saveMixedKeys()"></textarea>
+              </div>
+
+              <!-- Gemini keys -->
+              <div style="margin-bottom:8px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span style="font-size:11px;font-weight:700;color:#6366f1">✨ Gemini Keys</span>
+                  <span id="geminiKeyCount" style="font-size:10px;color:var(--text3)">0 keys</span>
+                </div>
+                <select id="geminiModelSelect" onchange="updateMixedEst()"
+                  style="width:100%;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:11px;margin-bottom:4px">
+                  <option value="gemini-2.5-flash">✨ Gemini 2.5 Flash</option>
+                  <option value="gemini-2.5-pro">💎 Gemini 2.5 Pro</option>
+                  <option value="gemini-2.0-flash">🚀 Gemini 2.0 Flash</option>
+                  <option value="gemini-3-flash">⚡ Gemini 3 Flash</option>
+                  <option value="gemini-3-pro-preview">🧠 Gemini 3 Pro</option>
+                  <option value="gemini-3.1-flash-preview">🚀 Gemini 3.1 Flash</option>
+                  <option value="gemini-3.1-pro-preview">💎 Gemini 3.1 Pro</option>
+                </select>
+                <textarea id="geminiKeys" rows="3" placeholder="AIzaSy...&#10;AIzaSy...&#10;(mỗi dòng 1 key Gemini)"
+                  style="font-size:11px" oninput="updateMixedEst(); saveMixedKeys()"></textarea>
+              </div>
+
+              <!-- Mixed summary -->
+              <div id="mixedSummary" style="font-size:10px;color:var(--text2);padding:6px 8px;background:var(--bg);border-radius:6px;border:1px solid var(--border)">
+                Chưa nhập key nào
+              </div>
+            </div>
+
+            <hr style="border:0;border-top:1px solid var(--border);margin:10px 0">
+            <!-- Auto-download toggle -->
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px">
+              <input type="checkbox" id="chkAutoDownload" checked style="width:16px;height:16px;accent-color:var(--accent)">
+              <span>📥 Tự động tải file sau khi dịch</span>
+            </label>
+            <!-- Auto-QA toggle -->
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:8px">
+              <input type="checkbox" id="chkAutoQA" checked style="width:16px;height:16px;accent-color:var(--accent)">
+              <span>🔍 Tự động kiểm tra & sửa lỗi</span>
+            </label>
+            <!-- Auto-SEO toggle -->
+            <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;margin-bottom:8px">
+              <input type="checkbox" id="chkAutoSEO" style="width:16px;height:16px;accent-color:var(--accent)">
+              <span>📢 Tự động tạo SEO sau khi dịch</span>
+            </label>
+            <!-- Hidden batch/delay (auto) -->
+            <input id="batch" type="hidden" value="300">
+            <select id="delayPreset" style="display:none"><option value="auto">Auto</option><option value="0">0</option><option value="2">2</option><option value="5">5</option><option value="10">10</option><option value="20">20</option><option value="32">32</option><option value="45">45</option></select>
+            <div class="key-hint" id="delayHint" style="display:none"></div>
+            <button class="btn btn-g btn-sm" style="width:100%" onclick="saveSettings(); toggleSettings()">💾 Lưu & Đóng</button>
+          </div><!-- /settingsPanel -->
+
+          <!-- Language (always visible) -->
+          <div class="row">
+            <div>
+              <span class="label">Ngôn ngữ gốc</span>
+              <select id="src">
+                <option value="auto">🔍 Tự nhận diện</option>
+                <option value="en">Tiếng Anh</option><option value="ja">Tiếng Nhật</option>
+                <option value="ko">Tiếng Hàn</option><option value="zh">Tiếng Trung</option>
+                <option value="fr">Tiếng Pháp</option><option value="de">Tiếng Đức</option>
+                <option value="es">Tiếng TBN</option><option value="th">Tiếng Thái</option>
+                <option value="vi">Tiếng Việt</option>
+              </select>
+            </div>
+            <div>
+              <span class="label">Ngôn ngữ đích</span>
+              <select id="tgt">
+                <option value="vi">🇻🇳 Tiếng Việt</option><option value="en">Tiếng Anh</option>
+                <option value="ja">Tiếng Nhật</option><option value="ko">Tiếng Hàn</option>
+                <option value="zh">Tiếng Trung</option><option value="fr">Tiếng Pháp</option>
+                <option value="de">Tiếng Đức</option><option value="es">Tiếng TBN</option>
+                <option value="th">Tiếng Thái</option>
+              </select>
+            </div>
+          </div>
+          <span class="label">Phong cách dịch</span>
+          <select id="styleSelect" onchange="applyStyle(this.value)">
+            <option value="">— Chọn —</option>
+            <option value="0">🎬 Phim truyện</option><option value="1">⭐ Review phim</option>
+            <option value="2">🌍 Du lịch</option><option value="3">🎥 Vlog / KOL</option>
+            <option value="4">🎬 Documentary</option><option value="5">🍠 Anime / Manga</option>
+            <option value="6">🧪 Khoa học</option><option value="7">🎧 Podcast</option>
+          </select>
+          <textarea id="custom" rows="2" placeholder="VD: Dùng ngôi 'tôi', câu ngắn gọn..." style="margin-top:4px"></textarea>
+        </div>
+
+        <!-- BƯỚC 2.5: PHÂN TÍCH NHÂN VẬT -->
+        <div class="step" id="secCharAnalysis" style="display:none">
+          <div class="step-head">
+            <div class="step-num" style="background:linear-gradient(135deg,#a855f7,#ec4899)">🎭</div>
+            <div class="step-title">Phân tích nhân vật & xưng hô <span style="font-size:11px;color:var(--text3);font-weight:400">(tuỳ chọn)</span></div>
+          </div>
+          <p style="font-size:11px;color:var(--text2);margin:0 0 8px">
+            AI đọc <b>toàn bộ</b> file SRT → trích xuất tên nhân vật, quy tắc xưng hô, thuật ngữ. Kết quả sẽ được gắn vào prompt dịch.
+          </p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+            <button class="btn btn-p btn-sm" id="btnAnalyze" onclick="analyzeCharacters()">
+              🔍 Auto-phân tích từ SRT
+            </button>
+            <button class="btn btn-g btn-sm" onclick="importCharFile()">
+              📁 Tải file .txt
+            </button>
+            <button class="btn btn-d btn-sm" onclick="G('charContext').value=''; saveCharCache(); log('[CharCtx] Đã xoá')">
+              🗑️ Xoá
+            </button>
+            <button class="btn btn-g btn-sm" onclick="previewLangGuide()">
+              👁 Xem prompt ngôn ngữ
+            </button>
+          </div>
+          <div id="charStatus" style="font-size:11px;color:var(--text3);margin-bottom:4px"></div>
+          <div id="langGuidePreview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:6px;font-size:11px;font-family:monospace;line-height:1.5;white-space:pre-wrap;max-height:200px;overflow-y:auto;color:var(--text2)"></div>
+          <textarea id="charContext" rows="8" placeholder="[CHARACTERS]&#10;- 苏叶 → Tô Diệp (nữ, nhân vật chính)&#10;&#10;[ADDRESSING]&#10;1. Tô Diệp ↔ Vân Thiên&#10;   - Tô Diệp xưng: 'ta', gọi: 'ngươi'&#10;   - Vân Thiên xưng: 'ta', gọi: 'cô'&#10;&#10;[TERMS]&#10;- 灵石 → linh thạch&#10;- 修为 → tu vi" style="font-size:11px;font-family:monospace;line-height:1.5" oninput="saveCharCache()"></textarea>
+        </div>
+
+        <!-- BƯỚC 3: THỰC HIỆN DỊCH -->
+        <div class="step">
+          <div class="step-head">
+            <div class="step-num" id="sn3">3</div>
+            <div class="step-title">Thực hiện dịch</div>
+          </div>
+          <!-- Estimation panel -->
+          <div class="est-panel" id="estPanel">
+            <div class="est-row"><span>📝 Phụ đề</span><span class="est-val" id="estSubs">—</span></div>
+            <div class="est-row"><span>🔢 Số batch</span><span class="est-val" id="estBatches">—</span></div>
+            <div class="est-row"><span>💬 Token ước tính</span><span class="est-val" id="estTokens">—</span></div>
+            <div class="est-row"><span>⏱️ Thời gian ước tính</span><span class="est-val" id="estTime">—</span></div>
+            <div class="est-row"><span>🔑 API Keys</span><span class="est-val" id="estKeys">—</span></div>
+          </div>
+          <div class="warn-rate" id="warnRate">⚠️ <span id="warnRateTxt"></span></div>
+          <label
+            style="display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:var(--text2);cursor:pointer">
+            <input type="checkbox" id="autoQaToggle" checked style="accent-color:var(--accent);width:14px;height:14px">
+            <span>🔍 <b>Auto-QA</b> — tự kiểm tra &amp; retry dòng bị lỗi sau mỗi batch
+              <span style="color:var(--text3)">(trống / không dịch / quá ngắn)</span></span>
+          </label>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
+            <button class="btn btn-p btn-full" id="btnGo" onclick="startTranslation()" disabled
+              title="Vui lòng tải file .srt lên trước">🚀 Bắt đầu dịch</button>
+            <div id="btnGoHint" style="font-size:10px;color:var(--text3);text-align:center;display:block">⬆️ Tải file .srt ở Bước 1 để bắt đầu</div>
+            <button class="btn btn-g btn-full" id="btnMore" onclick="continueTranslation()" style="display:none">⏩ Dịch
+              tiếp phần còn lại</button>
+            <button class="btn btn-s btn-full btn-sm" id="btnRetryFailed" onclick="retryFailedBatches()"
+              style="display:none">🔁 Dịch lại đoạn bị lỗi</button>
+            <button class="btn btn-d btn-full btn-sm" id="btnStop" onclick="abort()" style="display:none">⏹ Dừng
+              lại</button>
+            <button class="btn btn-g btn-full btn-sm" id="btnViewLog" onclick="switchTab('log',document.querySelectorAll('.tab')[3])" style="display:none">📋 Xem Log</button>
+          </div>
+          <div id="progArea" style="display:none;margin-top:10px">
+            <div class="prog-bar">
+              <div class="prog-fill" id="progFill" style="width:0%"></div>
+            </div>
+            <div class="prog-text"><span id="progLbl">0 / 0</span><span id="progPct">0%</span></div>
+            <!-- ETA Live Dashboard -->
+            <div id="etaDash" style="display:none;margin-top:8px;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs)">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">
+                <div>⏱️ Đã chạy: <b id="etaElapsed">0s</b></div>
+                <div>⏳ Còn lại: <b id="etaRemain" style="color:var(--accent2)">—</b></div>
+                <div>⚡ Tốc độ: <b id="etaSpeed">—</b> chunk/phút</div>
+                <div>📦 Chunks: <b id="etaChunks">0/0</b></div>
+              </div>
+            </div>
+            <!-- API Health Panel (Backend mode) -->
+            <div id="healthPanel" style="display:none;margin-top:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);font-size:10px">
+              <div style="font-weight:600;margin-bottom:4px;color:var(--text2)">🔑 API Health</div>
+              <div id="healthBody"></div>
+            </div>
+          </div>
+          <!-- Backend Mode Toggle (hidden - auto-enabled) -->
+          <div style="display:none">
+            <label style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);cursor:pointer">
+              <input type="checkbox" id="backendMode" checked style="accent-color:var(--green);width:14px;height:14px">
+              <span>🖥️ <b>Backend Mode</b>
+                <span id="backendStatus" style="color:var(--text3)"></span></span>
+            </label>
+            <div id="backendUrl" style="display:none;margin-top:6px">
+              <input id="wsUrl" value="" style="font-size:10px">
+              <script>
+                // Auto-detect WebSocket URL based on page location
+                (function() {
+                  var loc = window.location;
+                  var wsProto = loc.protocol === 'https:' ? 'wss://' : 'ws://';
+                  var wsHost = loc.host || 'localhost:8000';
+                  var wsUrl = wsProto + wsHost + '/ws/translate';
+                  document.getElementById('wsUrl').value = wsUrl;
+                  document.getElementById('backendStatus').textContent = wsProto + wsHost;
+                })();
+              </script>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- KIỂM TRA -->
+        <div class="step" id="secVal" style="display:none">
+          <div class="step-head">
+            <div class="step-num done">✓</div>
+            <div class="step-title">Kiểm tra chất lượng</div>
+          </div>
+          <div id="valRes"></div>
+          <div class="row" style="margin-top:8px">
+            <button class="btn btn-g btn-sm" onclick="validate()">🔍 Kiểm tra lại</button>
+            <button class="btn btn-s btn-sm" onclick="autoFix()">🔧 Tự sửa lỗi</button>
+          </div>
+          <button class="btn btn-g btn-full btn-sm" id="btnFilterErr" onclick="toggleFilterErrors()" style="margin-top:6px">
+            📍 Chỉ xem dòng chưa dịch / lỗi
+          </button>
+          <button class="btn btn-g btn-full btn-sm" onclick="scanMixedChars()" style="margin-top:6px">
+            🧹 Quét &amp; sửa ký tự chưa dịch <span style="color:var(--text3);font-size:10px">(CJK, Kana,
+              Hangul...)</span>
+          </button>
+        </div>
+
+        <!-- BƯỚC 5: TẢI XUỐNG -->
+        <div class="step" id="secDl" style="display:none">
+          <div class="step-head">
+            <div class="step-num done">5</div>
+            <div class="step-title">Tải về</div>
+          </div>
+          <div class="two-col">
+            <button class="btn btn-p btn-full" onclick="dlSRT()">&#128190; Tải .SRT</button>
+            <button class="btn btn-g btn-full" onclick="dlTXT()">&#128196; Tải .TXT</button>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:5px">
+            .SRT = phụ đề có timestamp · .TXT = chỉ văn bản thuần (dùng cho TTS)
+          </div>
+          <button class="btn btn-g btn-full btn-sm" onclick="dlLog()" style="margin-top:5px">&#128196; Tải log AI
+            (debug)</button>
+        </div>
+
+      </div><!-- /sidebar -->
+
+      <!-- EDITOR -->
+      <div class="editor">
+        <div class="tabs">
+          <button class="tab act" onclick="switchTab('subs',this)">Phụ đề <span class="cnt"
+              id="cntSub">0</span></button>
+          <button class="tab" onclick="toggleSearch();switchTab('subs',document.querySelector('.tab'))" title="Tìm kiếm & Thay thế (Ctrl+F)" style="font-size:16px;padding:6px 10px">🔍</button>
+          <button class="tab" onclick="switchTab('prompt',this)">Prompt AI</button>
+          <button class="tab" onclick="switchTab('log',this)">Log <span class="cnt" id="cntLog">0</span></button>
+          <button class="tab" onclick="switchTab('history',this)">Lịch sử <span class="cnt"
+              id="cntHist">0</span></button>
+          <button class="tab" onclick="switchTab('seo',this)">📢 SEO</button>
+        </div>
+        <div class="econtent">
+          <!-- Phụ đề -->
+          <div class="pane act" id="pane-subs">
+            <!-- Search bar overlay -->
+            <div id="searchBar" style="display:none;padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--border);gap:6px;align-items:center;flex-wrap:wrap">
+              <div style="display:flex;gap:4px;align-items:center;flex:1;min-width:200px">
+                <span style="font-size:14px">🔍</span>
+                <input id="searchInput" placeholder="Tìm kiếm..." style="flex:1;min-width:100px;font-size:12px;padding:5px 8px" oninput="doSearch()">
+                <span id="searchCount" style="font-size:11px;color:var(--text3);white-space:nowrap">0 kết quả</span>
+                <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="navSearch(-1)">▲</button>
+                <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="navSearch(1)">▼</button>
+              </div>
+              <div style="display:flex;gap:4px;align-items:center;flex:1;min-width:200px">
+                <span style="font-size:14px">✏️</span>
+                <input id="replaceInput" placeholder="Thay thế bằng..." style="flex:1;min-width:100px;font-size:12px;padding:5px 8px">
+                <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="doReplace(false)">Thay thế</button>
+                <button class="btn btn-g" style="padding:3px 8px;font-size:11px" onclick="doReplace(true)">Tất cả</button>
+                <button class="btn btn-g" style="padding:3px 8px;font-size:11px;color:var(--red)" onclick="toggleSearch(false)">✕</button>
+              </div>
+            </div>
+            <div class="sub-hdr">
+              <div class="sub-hdr-col">#</div>
+              <div class="sub-hdr-col">Bản gốc</div>
+              <div class="sub-hdr-col">Bản dịch (có thể chỉnh sửa)</div>
+            </div>
+            <div class="sub-list" id="subList">
+              <div class="empty">
+                <div class="empty-ico">📝</div>
+                <div class="empty-txt">Tải file .srt ở Bước 1 để bắt đầu</div>
+              </div>
+            </div>
+          </div>
+          <!-- Prompt -->
+          <div class="pane" id="pane-prompt">
+            <div class="ppane">
+              <div style="font-size:11px;color:var(--text3);line-height:1.6">
+                Đây là hướng dẫn cốt lõi gửi cho AI. Phần <strong style="color:var(--accent2)">Yêu cầu tùy
+                  chỉnh</strong> ở Bước 3 sẽ được ghép thêm vào đây trước khi gửi.
+              </div>
+              <textarea id="promptBase" rows="20">Bạn là dịch giả chuyên nghiệp cho phụ đề phim. Hãy dịch các dòng phụ đề dưới đây một cách chính xác, tự nhiên và phù hợp với ngữ cảnh điện ảnh.
+
+Quy tắc bắt buộc:
+- Input: dạng [N] text. Output: ĐÚNG NGUYÊN format [N] bản_dịch
+- Dịch TOÀN BỘ nội dung, KHÔNG giữ lại ký tự ngôn ngữ gốc
+- Giữ nguyên tên riêng nếu không có bản dịch chính thức
+- Nếu dòng chỉ là âm thanh (ví dụ: [cười]), dịch hoặc giữ nguyên cho phù hợp
+- Giữ nguyên các ký hiệu đặc biệt (♪, -, ...) nếu có
+
+Chỉ xuất các dòng [N] đã dịch, không thêm giải thích hay chú thích.</textarea>
+              <div style="display:flex;gap:6px">
+                <button class="btn btn-g btn-sm" onclick="importPrompt()">📥 Nhập từ file .txt</button>
+                <button class="btn btn-g btn-sm" onclick="saveSettings()">💾 Lưu mặc định</button>
+              </div>
+            </div>
+          </div>
+          <!-- Log -->
+          <div class="pane" id="pane-log">
+            <div class="ppane">
+              <pre class="log-pre" id="logEl">Chưa có log.</pre>
+            </div>
+          </div>
+          <!-- Lịch sử -->
+          <div class="pane" id="pane-history">
+            <div
+              style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0">
+              <span style="font-size:11px;font-weight:700;color:var(--text2)">Lịch sử dịch (tối đa 10 phiên)</span>
+              <button class="btn btn-g btn-sm" onclick="clearHistory()">&#128465; Xóa hết</button>
+            </div>
+            <div id="histList" style="flex:1;overflow-y:auto"></div>
+          </div>
+          <!-- SEO -->
+          <div class="pane" id="pane-seo">
+            <div class="ppane" style="padding:14px;overflow-y:auto">
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                <span style="font-size:20px">📢</span>
+                <span style="font-size:14px;font-weight:700">SEO Generator</span>
+                <span style="font-size:11px;color:var(--text3)">— Tạo tiêu đề, mô tả, hashtag từ nội dung đã dịch</span>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+                <div>
+                  <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">Nền tảng</label>
+                  <select id="seoPlatform" style="margin-top:3px">
+                    <option value="youtube">📺 YouTube</option>
+                    <option value="tiktok">🎵 TikTok</option>
+                    <option value="facebook">📘 Facebook</option>
+                    <option value="bilibili">📺 Bilibili</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">Thể loại</label>
+                  <select id="seoGenre" style="margin-top:3px">
+                    <option value="anime">🎌 Anime / Cartoon</option>
+                    <option value="kdrama">🇰🇷 Phim Hàn / K-Drama</option>
+                    <option value="manhwa">📖 Manhwa / Manga</option>
+                    <option value="movie">🎬 Phim lẻ / Series</option>
+                    <option value="game">🎮 Game / Esports</option>
+                    <option value="music">🎵 Nhạc / MV</option>
+                    <option value="custom">✏️ Tùy chỉnh</option>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-bottom:10px">
+                <label style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px">Hướng dẫn bổ sung (training)</label>
+                <textarea id="seoCustom" rows="3" placeholder="VD: Kênh Vietsub Anime, phong cách tiêu đề hấp dẫn, thêm [Vietsub] trước tiêu đề..." style="margin-top:3px;font-size:11px"></textarea>
+              </div>
+              <div style="display:flex;gap:6px;margin-bottom:14px">
+                <button class="btn btn-p" onclick="generateSEO()" id="btnSeo" style="flex:1">🚀 Tạo SEO</button>
+                <button class="btn btn-g" onclick="copyAllSeo()" id="btnCopyAll" style="display:none">📋 Copy All</button>
+                <button class="btn btn-g" onclick="downloadSEO()" id="btnDlSeo" style="display:none">📥 Tải .txt</button>
+              </div>
+              <div id="seoOutput" style="display:none">
+                <div style="margin-bottom:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-size:12px;font-weight:700;color:var(--accent2)">🏷️ 5 Tiêu đề SEO</span>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="regenSection('TITLES')">🔄</button>
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="copySeo('seoTitles')">📋 Copy</button>
+                    </div>
+                  </div>
+                  <div id="seoTitles" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rx);padding:8px 10px;font-size:12px;line-height:1.8;white-space:pre-wrap;cursor:text" contenteditable="true" oninput="updateCharCount()"></div>
+                  <div id="seoCharCount" style="font-size:10px;color:var(--text3);margin-top:2px;text-align:right"></div>
+                </div>
+                <div style="margin-bottom:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-size:12px;font-weight:700;color:var(--accent2)">📝 Mô tả ngắn</span>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="regenSection('SHORT')">🔄</button>
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="copySeo('seoShort')">📋 Copy</button>
+                    </div>
+                  </div>
+                  <div id="seoShort" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rx);padding:8px 10px;font-size:12px;line-height:1.6;white-space:pre-wrap;cursor:text" contenteditable="true"></div>
+                </div>
+                <div style="margin-bottom:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-size:12px;font-weight:700;color:var(--accent2)">📄 Mô tả dài</span>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="regenSection('LONG')">🔄</button>
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="copySeo('seoLong')">📋 Copy</button>
+                    </div>
+                  </div>
+                  <div id="seoLong" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rx);padding:8px 10px;font-size:12px;line-height:1.6;white-space:pre-wrap;cursor:text" contenteditable="true"></div>
+                </div>
+                <div style="margin-bottom:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-size:12px;font-weight:700;color:var(--accent2)"># Hashtags</span>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="regenSection('HASHTAGS')">🔄</button>
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="copySeo('seoHash')">📋 Copy</button>
+                    </div>
+                  </div>
+                  <div id="seoHash" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rx);padding:8px 10px;font-size:12px;line-height:1.6;white-space:pre-wrap;cursor:text" contenteditable="true"></div>
+                </div>
+                <div style="margin-bottom:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                    <span style="font-size:12px;font-weight:700;color:var(--accent2)">🏷️ Tags (YouTube)</span>
+                    <div style="display:flex;gap:4px">
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="regenSection('TAGS')">🔄</button>
+                      <button class="btn btn-g" style="padding:2px 8px;font-size:10px" onclick="copySeo('seoTags')">📋 Copy</button>
+                    </div>
+                  </div>
+                  <div id="seoTags" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rx);padding:8px 10px;font-size:12px;line-height:1.6;white-space:pre-wrap;cursor:text" contenteditable="true"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sbar">
+      <div class="sdot" id="sdot"></div>
+      <span id="stxt">Sẵn sàng</span>
+      <span style="margin-left:auto;font-size:9px;color:var(--text3)" id="sright"></span>
+    </div>
+  </div>
+
+  <script>
+    // ── STATE ──
+    let orig = [], trans = [], fileName = '', busy = false, stop = false, logs = [], valErrs = [], keyIdx = 0;
+    let batchStartTime = 0, batchTimes = [];
+    let failedBatches = [];  // mảng {offset, batch} các batch bị lỗi sau 3 lần thử
+
+    const PROVIDERS = {
+      cliproxy: { url: 'http://localhost:8317/v1/chat/completions', mdl: 'gemini-2.5-flash', key: '', rpm: 0 },
+      gemini: { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', mdl: 'gemini-2.5-flash', key: '', rpm: 2000 },
+      openai: { url: 'https://api.openai.com/v1/chat/completions', mdl: 'gpt-4o-mini', key: '', rpm: 500 },
+      deepseek: { url: 'https://api.deepseek.com/v1/chat/completions', mdl: 'deepseek-chat', key: '', rpm: 60 },
+      claude: { url: 'https://api.anthropic.com/v1/messages', mdl: 'claude-3-5-haiku-20241022', key: '', rpm: 50 },
+      groq: { url: 'https://api.groq.com/openai/v1/chat/completions', mdl: 'llama-3.3-70b-versatile', key: '', rpm: 30 },
+      ollama: { url: 'http://localhost:11434/v1/chat/completions', mdl: 'llama3.2', key: 'ollama', rpm: 0 },
+      python_backend: { url: '/translate', mdl: 'llama-3.3-70b-versatile', key: '', rpm: 0 }
+    };
+
+    // Danh sách model theo từng nhà cung cấp
+    const PROVIDER_MODELS = {
+      cliproxy: [
+        { value: 'gemini-2.5-flash', label: '✨ Gemini 2.5 Flash' },
+        { value: 'gemini-2.5-pro', label: '💎 Gemini 2.5 Pro' },
+        { value: 'gemini-2.0-flash', label: '⚡ Gemini 2.0 Flash' },
+        { value: 'gpt-4o-mini', label: '🟢 GPT-4o Mini' },
+        { value: 'gpt-4o', label: '🟢 GPT-4o' },
+        { value: 'claude-3-5-haiku-20241022', label: '🟠 Claude 3.5 Haiku' },
+      ],
+      gemini: [
+        { value: 'gemini-3.1-pro-preview', label: '💎 Gemini 3.1 Pro' },
+        { value: 'gemini-3.1-flash-preview', label: '🚀 Gemini 3.1 Flash' },
+        { value: 'gemini-3.1-flash-lite', label: '💨 Gemini 3.1 Flash Lite' },
+        { value: 'gemini-3-pro-preview', label: '🧠 Gemini 3 Pro ⚠️ deprecated 26/03' },
+        { value: 'gemini-3-flash', label: '⚡ Gemini 3 Flash' },
+        { value: 'gemini-2.5-pro', label: '💠 Gemini 2.5 Pro' },
+        { value: 'gemini-2.5-flash', label: '✨ Gemini 2.5 Flash' },
+        { value: 'gemini-2.0-flash', label: '🚀 Gemini 2.0 Flash' },
+      ],
+      openai: [
+        { value: 'gpt-4o-mini', label: '💨 GPT-4o Mini (rẻ, nhanh)' },
+        { value: 'gpt-4o', label: '🧠 GPT-4o' },
+        { value: 'gpt-4-turbo', label: '⚡ GPT-4 Turbo' },
+        { value: 'gpt-3.5-turbo', label: '💨 GPT-3.5 Turbo' },
+        { value: 'o3-mini', label: '🔮 o3-mini (Reasoning)' },
+      ],
+      deepseek: [
+        { value: 'deepseek-chat', label: '💬 DeepSeek Chat (V3)' },
+        { value: 'deepseek-reasoner', label: '🧠 DeepSeek Reasoner (R1)' },
+      ],
+      claude: [
+        { value: 'claude-3-5-haiku-20241022', label: '💨 Claude 3.5 Haiku (nhanh)' },
+        { value: 'claude-3-5-sonnet-20241022', label: '🧠 Claude 3.5 Sonnet' },
+        { value: 'claude-3-opus-20240229', label: '💎 Claude 3 Opus' },
+      ],
+      groq: [
+        { value: 'llama-3.3-70b-versatile', label: '🦙 LLaMA 3.3 70B Versatile' },
+        { value: 'llama-3.1-8b-instant', label: '⚡ LLaMA 3.1 8B Instant' },
+        { value: 'deepseek-r1-distill-llama-70b', label: '🧠 DeepSeek R1 LLaMA 70B' },
+        { value: 'deepseek-r1-distill-qwen-32b', label: '🧠 DeepSeek R1 Qwen 32B' },
+        { value: 'gemma2-9b-it', label: '💎 Gemma 2 9B IT' },
+        { value: 'mixtral-8x7b-32768', label: '🔀 Mixtral 8x7B' },
+      ],
+      ollama: [
+        { value: 'llama3.2', label: '🦙 Llama 3.2' },
+        { value: 'llama3.1', label: '🦙 Llama 3.1' },
+        { value: 'mistral', label: '🌬️ Mistral' },
+        { value: 'gemma2', label: '💎 Gemma 2' },
+        { value: 'qwen2.5', label: '🌐 Qwen 2.5' },
+        { value: 'phi3', label: '🔬 Phi-3' },
+      ],
+      python_backend: [
+        { value: 'gemini-3.1-pro-preview', label: '💎 (Gemini) 3.1 Pro' },
+        { value: 'gemini-3.1-flash-preview', label: '⚡ (Gemini) 3.1 Flash' },
+        { value: 'gemini-3-pro-preview', label: '🧠 (Gemini) 3 Pro' },
+        { value: 'gemini-2.5-pro', label: '💠 (Gemini) 2.5 Pro' },
+        { value: 'gemini-2.0-flash', label: '🚀 (Gemini) 2.0 Flash' },
+        { value: 'llama-3.3-70b-versatile', label: '🦙 (Groq) LLaMA 3.3 70B' },
+        { value: 'deepseek-r1-distill-llama-70b', label: '🧠 (Groq) DeepSeek R1 70B' },
+        { value: 'gpt-4o-mini', label: '💨 (OpenAI) GPT-4o Mini' },
+        { value: 'deepseek-chat', label: '💬 (DeepSeek) V3 Chat' },
+      ]
+    };
+
+    // current active provider name (for rate limit lookup)
+    let activeProv = 'cliproxy';
+
+    // ── HELPER ──
+    function G(id) { return document.getElementById(id) }
+
+    // ── API KEY ROTATION ──
+    function getKeys() {
+      // For python backend, we allow any number of keys to be passed.
+      return G('key').value.split('\n').map(k => k.trim()).filter(k => k);
+    }
+    function nextKey() {
+      const keys = getKeys();
+      if (!keys.length) return '';
+      const k = keys[keyIdx % keys.length];
+      keyIdx++;
+      return k;
+    }
+
+    // ── ESTIMATION ──
+    // Provider speed estimates (seconds per batch of 30 lines)
+    const SPEED = { cliproxy: 3, gemini: 2, openai: 8, deepseek: 6, groq: 5, claude: 7, ollama: 10 };
+    function estTokens(subs) {
+      const chars = subs.reduce((s, x) => s + x.text.length, 0);
+      return Math.round(chars / 3.5);  // ~3.5 chars/token for mixed lang
+    }
+    function fmtTime(sec) {
+      if (sec < 60) return sec + 'giây';
+      return Math.ceil(sec / 60) + 'phút ' + (sec % 60 ? (sec % 60) + 'giây' : '');
+    }
+    // ── SEO Generator ──
+    window._lastSeo = null;
+    async function generateSEO() {
+      if (!trans.length || !trans.some(t => t.text?.trim())) { alert('Chưa có nội dung dịch!'); return; }
+      const btn = G('btnSeo');
+      btn.disabled = true; btn.textContent = '⏳ Đang tạo...';
+      
+      const platform = G('seoPlatform').value;
+      const genre = G('seoGenre').value;
+      const custom = (G('seoCustom').value || '').trim();
+      const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      
+      // Smart sampling: 4 segments (start, 1/3, 2/3, end) for full coverage
+      const len = trans.length;
+      const seg = Math.floor(len / 4);
+      const sample = [
+        ...trans.slice(0, Math.min(25, len)),
+        ...trans.slice(Math.max(0, seg - 10), seg + 10),
+        ...trans.slice(Math.max(0, seg*2 - 10), seg*2 + 10),
+        ...trans.slice(Math.max(0, len - 25))
+      ].filter(t => t.text?.trim() && t.text !== '.')
+       .map(t => t.text)
+       .filter((v, i, a) => a.indexOf(v) === i) // deduplicate
+       .join('\n');
+      
+      const platformGuide = {
+        youtube: 'YouTube (tiêu đề ≤100 ký tự, mô tả ≤5000 ký tự, hashtag ≤15, tags comma-separated)',
+        tiktok: 'TikTok (tiêu đề ≤150 ký tự, hashtag quan trọng, mô tả ngắn gọn viral)',
+        facebook: 'Facebook (mô tả storytelling dài hơn, ít hashtag hơn, tiêu đề gây tò mò)',
+        bilibili: 'Bilibili (tiêu đề tiếng Trung nếu cần, hashtag phù hợp cộng đồng Bilibili)'
+      }[platform] || 'YouTube';
+      
+      const genreGuide = {
+        anime: 'Anime/Cartoon vietsub — dùng từ khóa: vietsub, tập mới, thuyết minh',
+        kdrama: 'Phim Hàn/K-Drama — dùng từ khóa: vietsub, tập cuối, review phim Hàn',
+        manhwa: 'Manhwa/Manga — dùng từ khóa: review manhwa, tóm tắt manga, chap mới',
+        movie: 'Phim lẻ/Series — dùng từ khóa: review phim, phim hay, thuyết minh',
+        game: 'Game/Esports — dùng từ khóa: gameplay, walkthrough, vietsub game',
+        music: 'Nhạc/MV — dùng từ khóa: vietsub, lyrics, MV mới nhất',
+        custom: custom || 'Nội dung tổng hợp'
+      }[genre] || '';
+      
+      const prompt = `Bạn là CHUYÊN GIA SEO YOUTUBE HÀNG ĐẦU với kiến thức sâu rộng.
+
+═══ KIẾN THỨC NỀN ═══
+
+📊 THUẬT TOÁN YOUTUBE:
+- YouTube đề xuất video PHÙ HỢP NHẤT (không phải hay nhất). 3 hệ thống: Search + Suggested + Shorts Feed
+- Chỉ số cốt lõi: CTR ≥8% (10%=cực mạnh), AVD ≥4 phút, APV ≥50% (65%=tuyệt vời), Watch Time = ưu tiên #1
+- Video mới test theo vòng lặp: nhóm nhỏ → mở rộng → đề xuất chính thức
+- Cụm nội dung: khi 1 video thành công → các video cùng hệ được kéo theo
+
+📝 TIÊU ĐỀ CHUẨN SEO:
+- 50–70 ký tự, có từ khóa chính + cảm xúc/tò mò
+- Dùng Title Case, tránh clickbait quá mức
+- Công thức: Vấn đề + Đối tượng + Ngòi nổ
+- 3 dạng: Số + Lợi ích | Câu hỏi sốc | Cảm xúc + Kết quả
+- Từ "ngòi nổ" viết HOA (chiếm <30% tiêu đề)
+- Chứa số liệu, từ khóa trong 65 ký tự đầu
+
+📄 MÔ TẢ VIDEO 3 ĐOẠN:
+1. Hook cảm xúc (2-3 dòng) – gợi tò mò, kéo người đọc
+2. Thông tin + từ khóa SEO (3-4 dòng) – topics, keywords tự nhiên
+3. CTA + liên kết – playlist, subscribe, credits
+
+🏷️ THẺ TAG:
+- 7–10 tag/video: từ khóa chính + phụ + cảm xúc + tên kênh tham chiếu
+- Không dùng tag quá chung (life, meditation)
+- Gắn tag giống kênh lớn cùng hệ để tăng đề xuất chéo
+- Pha trộn: keyword ngắn (vietsub, anime) + long-tail (anime vietsub tập mới 2024)
+
+🎣 KỸ THUẬT HOOK:
+- Xung đột tức thì: mâu thuẫn ngay câu đầu
+- Tiền đề nghịch lý: tuyên bố vô lý → tò mò
+- Countdown FOMO: cảm giác khẩn cấp
+- Hook chính mạnh + nhá hàng nội dung, không spoil
+
+📢 CTA TỐI ƯU:
+- 70-80% video → CTA mềm kéo bình luận (comment '.' hoặc tên nhân vật)
+- 95% video → CTA kéo Sub/Chuông
+- Kết video → CTA giữ chân xem tiếp (End Screen/Playlist)
+- CTA viral: "Ai xem đến đây, comment 'Tôi còn ở đây'"
+
+🎬 CẤU TRÚC KỂ CHUYỆN VIRAL:
+- Hành trình người hùng: bình thường → thử thách → vượt qua
+- Cấu trúc Pixar: "Rồi một ngày nọ…" → "Vì điều đó mà…" → "Cho đến khi cuối cùng…"
+- "Và, Nhưng, Vì vậy": Thiết lập → Xung đột → Giải quyết
+- Cấu trúc Núi: Mở đầu → Xung đột tăng dần → Cao trào → Hạ nhiệt
+
+═══ NHIỆM VỤ ═══
+
+Nền tảng: ${platformGuide}
+Thể loại: ${genreGuide}
+Ngôn ngữ output: ${tgtTxt}
+${custom ? 'Hướng dẫn bổ sung từ người dùng: ' + custom : ''}
+File gốc: ${fileName || 'Video'}
+
+Dựa trên nội dung phụ đề đã dịch bên dưới, hãy tạo:
+
+[TITLES]
+5 tiêu đề SEO khác nhau, mỗi cái 1 dòng. ÁP DỤNG:
+- Công thức: Vấn đề + Đối tượng + Ngòi nổ
+- 50-70 ký tự, Title Case, từ khóa chính ở 65 ký tự đầu
+- Có từ cảm xúc/tò mò, 1-2 từ VIẾT HOA làm ngòi nổ
+- Dạng: Câu hỏi sốc / Số + Lợi ích / Cảm xúc + Kết quả / Phủ định bất ngờ
+- Thêm tag ngách phù hợp: [Vietsub], [Full], [Tập X]...
+[/TITLES]
+
+[SHORT]
+Mô tả ngắn 2-3 câu (≤150 ký tự). Hook cảm xúc, gợi tò mò, không spoil.
+[/SHORT]
+
+[LONG]
+Mô tả dài 150-300 từ, cấu trúc 3 đoạn:
+1. Hook cảm xúc (2-3 dòng) – gợi tò mò
+2. Thông tin + từ khóa SEO (3-4 dòng) – chèn keyword tự nhiên
+3. CTA + hashtag – kêu gọi đăng ký, like, bình luận, xem playlist
+Có timestamp giả (00:00 Mở đầu...) nếu phù hợp.
+[/LONG]
+
+[HASHTAGS]
+15-20 hashtag phù hợp. Bắt đầu bằng #, cách nhau dấu cách.
+Pha trộn: hashtag trending + ngách + cảm xúc + tên nội dung.
+[/HASHTAGS]
+
+[TAGS]
+20-30 YouTube tags, phân cách dấu phẩy.
+Áp dụng: từ khóa chính + phụ + cảm xúc + long-tail + tên kênh tham chiếu lớn.
+Không dùng tag quá chung. Pha trộn keyword ngắn và dài.
+[/TAGS]
+
+Chỉ xuất đúng format trên, không thêm giải thích.`;
+
+      try {
+        const url = G('apiUrl').value.trim();
+        const mdl = G('mdl').value.trim();
+        const key = getKeys()[0] || '';
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (key) hdrs['Authorization'] = 'Bearer ' + key;
+        
+        const body = {
+          model: mdl,
+          messages: [
+            { role: 'system', content: prompt },
+            { role: 'user', content: sample }
+          ],
+          temperature: 0.7,
+          max_tokens: 4096
+        };
+        
+        const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content || '';
+        
+        // Parse sections
+        const extract = (tag) => {
+          const m = content.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, 'i'));
+          return m ? m[1].trim() : '';
+        };
+        
+        const seo = {
+          titles: extract('TITLES'),
+          short: extract('SHORT'),
+          long: extract('LONG'),
+          hashtags: extract('HASHTAGS'),
+          tags: extract('TAGS')
+        };
+        
+        // Fallback: if no sections parsed, try splitting by common markers
+        if (!seo.titles && !seo.short) {
+          log('[SEO] ⚠️ AI trả về format không chuẩn — parse thủ công...');
+          const lines = content.split('\n').filter(l => l.trim());
+          seo.titles = lines.slice(0, 5).join('\n');
+          seo.short = lines.slice(5, 8).join('\n');
+        }
+        
+        window._lastSeo = seo;
+        const placeholder = '(Chưa tạo được — bấm 🚀 để thử lại)';
+        G('seoTitles').textContent = seo.titles || placeholder;
+        G('seoShort').textContent = seo.short || placeholder;
+        G('seoLong').textContent = seo.long || placeholder;
+        G('seoHash').textContent = seo.hashtags || placeholder;
+        G('seoTags').textContent = seo.tags || placeholder;
+        G('seoOutput').style.display = '';
+        G('btnDlSeo').style.display = '';
+        G('btnCopyAll').style.display = '';
+        updateCharCount();
+        saveSeoCache();
+        const emptyCount = [seo.titles, seo.short, seo.long, seo.hashtags, seo.tags].filter(s => !s).length;
+        if (emptyCount > 0) {
+          log(`[SEO] ⚠️ ${emptyCount}/5 section trống — bấm 🚀 để thử lại`);
+        }
+        log(`[SEO] ✅ Tạo xong! Platform: ${platform}, Genre: ${genre}`);
+      } catch(e) {
+        alert('Lỗi tạo SEO: ' + e.message);
+        log(`[SEO] ❌ Lỗi: ${e.message}`);
+      }
+      btn.disabled = false; btn.textContent = '🚀 Tạo SEO';
+    }
+    
+    function copySeo(id) {
+      const el = G(id);
+      const txt = el?.innerText || el?.textContent || '';
+      navigator.clipboard.writeText(txt).then(() => {
+        const wrapper = el?.closest('[style*="margin-bottom"]');
+        const btn = wrapper?.querySelector('button');
+        if (btn) { const o = btn.textContent; btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = o, 1500); }
+      }).catch(() => {
+        // Fallback for non-HTTPS
+        const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      });
+    }
+    
+    function downloadSEO() {
+      if (!window._lastSeo) return;
+      const platform = G('seoPlatform').value.toUpperCase();
+      const genre = G('seoGenre').options[G('seoGenre').selectedIndex]?.text || '';
+      const tgt = G('tgt').options[G('tgt').selectedIndex]?.text || '';
+      const date = new Date().toLocaleString('vi-VN');
+      // Read from editable divs (user may have edited)
+      const titles = G('seoTitles')?.innerText || '';
+      const short = G('seoShort')?.innerText || '';
+      const long = G('seoLong')?.innerText || '';
+      const hashtags = G('seoHash')?.innerText || '';
+      const tags = G('seoTags')?.innerText || '';
+      const txt = `═══════════════════════════════════════\n` +
+        `  SEO — ${fileName || 'Video'}\n` +
+        `═══════════════════════════════════════\n` +
+        `📅 Ngày tạo: ${date}\n` +
+        `📺 Platform: ${platform}\n` +
+        `🎬 Thể loại: ${genre}\n` +
+        `🌐 Ngôn ngữ: ${tgt}\n` +
+        `📊 Tổng dòng dịch: ${trans.length}\n` +
+        `═══════════════════════════════════════\n\n` +
+        `── 5 TIÊU ĐỀ SEO ──\n${titles}\n\n` +
+        `── MÔ TẢ NGẮN ──\n${short}\n\n` +
+        `── MÔ TẢ DÀI ──\n${long}\n\n` +
+        `── HASHTAGS ──\n${hashtags}\n\n` +
+        `── TAGS ──\n${tags}\n`;
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (fileName || 'video').replace(/\.[^.]+$/, '') + '_SEO.txt';
+      a.click();
+      log(`[SEO] Đã tải file ${a.download}`);
+    }
+    
+    // ── Per-section regenerate ──
+    async function regenSection(tag) {
+      if (!trans.length) return;
+      const tagMap = { TITLES: 'seoTitles', SHORT: 'seoShort', LONG: 'seoLong', HASHTAGS: 'seoHash', TAGS: 'seoTags' };
+      const el = G(tagMap[tag]);
+      if (!el) return;
+      el.textContent = '⏳ Đang tạo lại...';
+      
+      const platform = G('seoPlatform').value;
+      const genre = G('seoGenre').options[G('seoGenre').selectedIndex]?.text || '';
+      const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const len = trans.length;
+      const seg = Math.floor(len / 4);
+      const sample = [...trans.slice(0, 20), ...trans.slice(Math.max(0, seg), seg+10), ...trans.slice(-15)]
+        .filter(t => t.text?.trim() && t.text !== '.').map(t => t.text).filter((v,i,a) => a.indexOf(v)===i).join('\n');
+      
+      const instructions = {
+        TITLES: `Tạo 5 tiêu đề SEO cho ${platform}. Công thức: Vấn đề+Đối tượng+Ngòi nổ. 50-70 ký tự, Title Case, 1-2 từ VIẾT HOA. File: ${fileName}`,
+        SHORT: `Viết mô tả ngắn 2-3 câu (≤150 ký tự). Hook cảm xúc, gợi tò mò, không spoil. Ngôn ngữ: ${tgtTxt}`,
+        LONG: `Viết mô tả dài 150-300 từ. 3 đoạn: Hook cảm xúc + SEO keywords + CTA. Có timestamp. Ngôn ngữ: ${tgtTxt}`,
+        HASHTAGS: `Tạo 15-20 hashtag bắt đầu bằng #. Pha trộn trending + ngách + cảm xúc. Platform: ${platform}. Thể loại: ${genre}`,
+        TAGS: `Tạo 20-30 YouTube tags phân cách dấu phẩy. Keyword ngắn + long-tail + tên kênh tham chiếu. Thể loại: ${genre}`
+      };
+      
+      try {
+        const url = G('apiUrl').value.trim();
+        const mdl = G('mdl').value.trim();
+        const key = getKeys()[0] || '';
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (key) hdrs['Authorization'] = 'Bearer ' + key;
+        const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify({
+          model: mdl,
+          messages: [{ role: 'system', content: instructions[tag] }, { role: 'user', content: sample }],
+          temperature: 0.7, max_tokens: 1024
+        })});
+        if (!res.ok) throw new Error(`API ${res.status}`);
+        const data = await res.json();
+        const content = (data.choices?.[0]?.message?.content || '').trim();
+        el.textContent = content;
+        if (tag === 'TITLES') updateCharCount();
+        saveSeoCache();
+        log(`[SEO] 🔄 ${tag} tạo lại xong`);
+      } catch(e) {
+        el.textContent = '(Lỗi — bấm 🔄 thử lại)';
+        log(`[SEO] ❌ Regen ${tag}: ${e.message}`);
+      }
+    }
+    
+    // ── Copy All ──
+    function copyAllSeo() {
+      const titles = G('seoTitles')?.innerText || '';
+      const short = G('seoShort')?.innerText || '';
+      const long = G('seoLong')?.innerText || '';
+      const hashtags = G('seoHash')?.innerText || '';
+      const tags = G('seoTags')?.innerText || '';
+      const all = `── TIÊU ĐỀ ──\n${titles}\n\n── MÔ TẢ NGẮN ──\n${short}\n\n── MÔ TẢ DÀI ──\n${long}\n\n── HASHTAGS ──\n${hashtags}\n\n── TAGS ──\n${tags}`;
+      navigator.clipboard.writeText(all).then(() => {
+        const btn = G('btnCopyAll');
+        if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = '📋 Copy All', 1500); }
+      }).catch(() => {
+        const ta = document.createElement('textarea'); ta.value = all; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      });
+    }
+    
+    // ── Character counter for titles ──
+    function updateCharCount() {
+      const el = G('seoTitles');
+      const counter = G('seoCharCount');
+      if (!el || !counter) return;
+      const lines = (el.innerText || '').split('\n').filter(l => l.trim());
+      const platform = G('seoPlatform')?.value || 'youtube';
+      const limit = platform === 'tiktok' ? 150 : 100;
+      counter.innerHTML = lines.map((l, i) => {
+        const len = l.trim().length;
+        const color = len > limit ? 'var(--red)' : len > limit * 0.85 ? 'var(--yellow)' : 'var(--green)';
+        return `<span style="color:${color}">#${i+1}: ${len}/${limit}</span>`;
+      }).join(' &nbsp;│&nbsp; ');
+    }
+    
+    // ── SEO Cache (localStorage) ──
+    function saveSeoCache() {
+      if (!fileName) return;
+      const data = {
+        titles: G('seoTitles')?.innerText || '',
+        short: G('seoShort')?.innerText || '',
+        long: G('seoLong')?.innerText || '',
+        hashtags: G('seoHash')?.innerText || '',
+        tags: G('seoTags')?.innerText || '',
+        platform: G('seoPlatform')?.value || '',
+        genre: G('seoGenre')?.value || '',
+        ts: Date.now()
+      };
+      try { localStorage.setItem('seo_' + fileName, JSON.stringify(data)); } catch(e) {}
+    }
+    function loadSeoCache() {
+      if (!fileName) return false;
+      try {
+        const raw = localStorage.getItem('seo_' + fileName);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data.titles) return false;
+        G('seoTitles').textContent = data.titles;
+        G('seoShort').textContent = data.short || '';
+        G('seoLong').textContent = data.long || '';
+        G('seoHash').textContent = data.hashtags || '';
+        G('seoTags').textContent = data.tags || '';
+        if (data.platform) G('seoPlatform').value = data.platform;
+        if (data.genre) G('seoGenre').value = data.genre;
+        G('seoOutput').style.display = '';
+        G('btnDlSeo').style.display = '';
+        G('btnCopyAll').style.display = '';
+        window._lastSeo = data;
+        updateCharCount();
+        log(`[SEO] ♻️ Loaded cache (${new Date(data.ts).toLocaleString('vi-VN')})`);
+        return true;
+      } catch(e) { return false; }
+    }
+    // ── Search & Replace ──
+    let searchMatches = [], searchIdx = -1;
+    function toggleSearch(show) {
+      const bar = G('searchBar');
+      if (show === undefined) show = bar.style.display === 'none';
+      bar.style.display = show ? 'flex' : 'none';
+      if (show) { G('searchInput').focus(); doSearch(); }
+      else { clearSearchHighlight(); }
+    }
+    function clearSearchHighlight() {
+      document.querySelectorAll('.sub-row.search-hit').forEach(el => el.classList.remove('search-hit'));
+      searchMatches = []; searchIdx = -1;
+      G('searchCount').textContent = '0 kết quả';
+    }
+    function doSearch() {
+      clearSearchHighlight();
+      const q = (G('searchInput').value || '').trim().toLowerCase();
+      if (!q || !trans.length) return;
+      const rows = document.querySelectorAll('.sub-row');
+      rows.forEach((row, i) => {
+        const txt = (trans[i]?.text || '').toLowerCase();
+        const origTxt = (orig[i]?.text || '').toLowerCase();
+        if (txt.includes(q) || origTxt.includes(q)) {
+          row.classList.add('search-hit');
+          searchMatches.push(i);
+        }
+      });
+      G('searchCount').textContent = searchMatches.length + ' kết quả';
+      if (searchMatches.length > 0) { searchIdx = 0; scrollToMatch(0); }
+    }
+    function navSearch(dir) {
+      if (!searchMatches.length) return;
+      searchIdx = (searchIdx + dir + searchMatches.length) % searchMatches.length;
+      scrollToMatch(searchIdx);
+    }
+    function scrollToMatch(idx) {
+      const rows = document.querySelectorAll('.sub-row');
+      rows.forEach(r => r.style.outline = '');
+      const target = rows[searchMatches[idx]];
+      if (target) { target.scrollIntoView({ block: 'center', behavior: 'smooth' }); target.style.outline = '2px solid var(--accent)'; }
+      G('searchCount').textContent = `${idx + 1}/${searchMatches.length}`;
+    }
+    function doReplace(all) {
+      const q = (G('searchInput').value || '').trim();
+      const r = G('replaceInput').value || '';
+      if (!q) return;
+      if (all) {
+        let count = 0;
+        trans.forEach((t, i) => {
+          if (t.text && t.text.includes(q)) { t.text = t.text.split(q).join(r); count++; }
+        });
+        log(`[Thay thế] ${count} dòng: "${q}" → "${r}"`);
+        renderSubs(); doSearch();
+      } else {
+        if (searchIdx < 0 || !searchMatches.length) return;
+        const i = searchMatches[searchIdx];
+        if (trans[i]?.text?.includes(q)) {
+          trans[i].text = trans[i].text.replace(q, r);
+          log(`[Thay thế] Dòng #${orig[i]?.id}: "${q}" → "${r}"`);
+          renderSubs(); doSearch();
+        }
+      }
+    }
+    // Ctrl+F shortcut
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        switchTab('subs', document.querySelector('.tab'));
+        toggleSearch();
+      }
+      if (e.key === 'Escape') toggleSearch(false);
+    });
+    // ── Theme switcher ──
+    function setTheme(cls) {
+      document.documentElement.className = cls;
+      localStorage.setItem('srt_theme', cls);
+      // Highlight active dot
+      const dots = document.querySelectorAll('#themePicker button');
+      dots.forEach(d => d.style.outline = 'none');
+      const map = {'': 0, 'theme-light': 1, 'theme-gray': 2, 'theme-sepia': 3};
+      const idx = map[cls] ?? 0;
+      if (dots[idx]) dots[idx].style.outline = '2px solid var(--text)';
+    }
+    function restoreTheme() {
+      const saved = localStorage.getItem('srt_theme') || '';
+      if (saved) document.documentElement.className = saved;
+      setTimeout(() => setTheme(saved), 100);
+    }
+    // ── Settings panel toggle ──
+    function toggleSettings() {
+      const p = G('settingsPanel');
+      p.style.display = p.style.display === 'none' ? '' : 'none';
+    }
+    function updateAiPill() {
+      const prov = G('provSelect')?.value || 'gemini';
+      const mdlSel = G('mdlSelect');
+      const mdlName = mdlSel?.options[mdlSel.selectedIndex]?.text || G('mdl')?.value || '';
+      const keys = getKeys();
+      const pill = G('aiPill');
+      if (pill) pill.innerHTML = `${mdlName} · <span id="aiKeyCount">${keys.length}</span> keys`;
+    }
+    // Auto-calculate optimal batch based on model
+    function autoBatch() {
+      const mdl = (G('mdl')?.value || '').toLowerCase();
+      // Text-only [N] format: 200-300 safe range
+      if (mdl.includes('flash')) G('batch').value = 300;
+      else if (mdl.includes('pro')) G('batch').value = 200;
+      else if (mdl.includes('llama') || mdl.includes('groq')) G('batch').value = 150;
+      else G('batch').value = 250;
+    }
+    // Smart max_tokens cap based on model capabilities
+    function getMaxTokensCap(mdl) {
+      const m = (mdl || '').toLowerCase();
+      if (m.includes('flash')) return 32768;  // Gemini Flash: 65K output limit
+      if (m.includes('pro')) return 16384;    // Gemini Pro: 32K output limit
+      if (m.includes('llama') || m.includes('groq')) return 8192;  // Free models
+      return 16384; // Safe default
+    }
+    function saveSettings() {
+      autoBatch();
+      updateAiPill();
+      localStorage.setItem('srt_autoDownload', G('chkAutoDownload')?.checked ? '1' : '0');
+      localStorage.setItem('srt_autoQA', G('chkAutoQA')?.checked ? '1' : '0');
+    }
+    function loadSettingsFlags() {
+      const ad = localStorage.getItem('srt_autoDownload');
+      const aq = localStorage.getItem('srt_autoQA');
+      if (ad !== null && G('chkAutoDownload')) G('chkAutoDownload').checked = ad === '1';
+      if (aq !== null && G('chkAutoQA')) G('chkAutoQA').checked = aq === '1';
+    }
+    function updateEst() {
+      if (!orig.length) { G('estPanel').style.display = 'none'; G('warnRate').style.display = 'none'; return; }
+
+      const pSel = G('provSelect');
+      if (pSel) activeProv = pSel.value;
+
+      const batchSz = parseInt(G('batch').value) || 250;
+      const numBatches = Math.ceil(orig.length / batchSz);
+      const tok = estTokens(orig);
+      const keys = getKeys();
+      let keyCount = keys.length || 1;
+
+      // Force 1 key count display if provider is not python backend and not cliproxy and not ollama
+      if (activeProv !== 'python_backend' && keys.length === 1) {
+        keyCount = 1;
+      }
+
+      const spd = SPEED[activeProv] || 5;
+
+      // Python backend processes concurrently, so time is divided by keyCount differently
+      let estSec = 0;
+      if (activeProv === 'python_backend') {
+        estSec = Math.ceil(numBatches * spd / keyCount);
+      } else {
+        estSec = Math.ceil(numBatches * spd / keyCount);
+      }
+
+      G('estSubs').textContent = orig.length + ' dòng';
+      G('estBatches').textContent = numBatches + ' batch (×' + batchSz + ' dòng)';
+      G('estTokens').textContent = '~' + tok.toLocaleString() + ' tokens';
+      G('estTime').textContent = '~' + fmtTime(estSec);
+
+      if (activeProv === 'python_backend') {
+        G('estKeys').textContent = keyCount + ' key' + (keyCount > 1 ? ' (chạy song song)' : '');
+        G('keyHint').textContent = keyCount + ' key' + (keyCount > 1 ? ` · đa luồng song song` : '');
+      } else {
+        G('estKeys').textContent = keyCount + ' key' + (keyCount > 1 ? ' (xoay vòng)' : '');
+        G('keyHint').textContent = keyCount + ' key' + (keyCount > 1 ? ` · xoay vòng mỗi batch` : ' · không xoay vòng');
+      }
+
+      G('estPanel').style.display = '';
+
+      // rate limit warning
+      const rpm = PROVIDERS[activeProv]?.rpm || 0;
+      if (rpm > 0 && activeProv !== 'python_backend') {
+        const batchPerMin = Math.ceil(60 / spd);
+        const effectiveRPM = batchPerMin / keyCount;
+        if (effectiveRPM > rpm * 0.7) {
+          G('warnRateTxt').textContent = `Rate limit cảnh báo! ${activeProv.toUpperCase()} giới hạn ${rpm} req/phút. Bạn sẽ gửi ~${batchPerMin} batch/phút với ${keyCount} key. Thêm key hoặc giảm batch size.`;
+          G('warnRate').style.display = '';
+        } else {
+          G('warnRate').style.display = 'none';
+        }
+      } else {
+        G('warnRate').style.display = 'none';
+      }
+    }
+
+    // ── HISTORY — IndexedDB (không giới hạn dung lượng) ──
+    const HIST_DB = 'srt_history_db';
+    const HIST_STORE = 'translations';
+    let histDB = null;
+
+    function openHistDB() {
+      return new Promise((resolve, reject) => {
+        if (histDB) return resolve(histDB);
+        const req = indexedDB.open(HIST_DB, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(HIST_STORE)) {
+            const store = db.createObjectStore(HIST_STORE, { keyPath: 'id' });
+            store.createIndex('date', 'id', { unique: true });
+          }
+        };
+        req.onsuccess = (e) => { histDB = e.target.result; resolve(histDB); };
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // Migrate localStorage → IndexedDB (chạy 1 lần)
+    async function migrateHistoryFromLS() {
+      const old = localStorage.getItem('srt_history'); // Use the old key
+      if (!old) return;
+      try {
+        const items = JSON.parse(old);
+        if (!Array.isArray(items) || items.length === 0) return;
+        const db = await openHistDB();
+        const tx = db.transaction(HIST_STORE, 'readwrite');
+        const store = tx.objectStore(HIST_STORE);
+        for (const item of items) { store.put(item); }
+        await new Promise((r, j) => { tx.oncomplete = r; tx.onerror = j; });
+        localStorage.removeItem('srt_history'); // Remove old key after migration
+        console.log(`[History] Migrated ${items.length} records from localStorage → IndexedDB`);
+      } catch (e) { console.warn('[History] Migration error:', e); }
+    }
+
+    async function saveHistory() {
+      if (!orig.length || !trans.length) return;
+      const done = trans.filter(s => s.text && s.text.trim()).length;
+      if (done === 0) return;
+      const rec = {
+        id: Date.now(),
+        date: new Date().toLocaleString('vi-VN'),
+        fileName,
+        src: G('src').value,
+        tgt: G('tgt').value,
+        model: G('mdl').value,
+        total: orig.length,
+        done,
+        orig: orig.map(s => ({ id: s.id, start: s.start, end: s.end, text: s.text })),
+        trans: trans.map(s => ({ id: s.id, text: s.text }))
+      };
+      try {
+        const db = await openHistDB();
+        // Xóa bản cũ cùng fileName (giữ bản mới nhất)
+        const all = await loadHistory();
+        const oldSame = all.filter(h => h.fileName === fileName);
+        if (oldSame.length > 0) {
+          const tx = db.transaction(HIST_STORE, 'readwrite');
+          oldSame.forEach(h => tx.objectStore(HIST_STORE).delete(h.id));
+          await new Promise(r => { tx.oncomplete = r; });
+        }
+        // Lưu bản mới
+        const tx2 = db.transaction(HIST_STORE, 'readwrite');
+        tx2.objectStore(HIST_STORE).put(rec);
+        await new Promise(r => { tx2.oncomplete = r; });
+        renderHistory();
+      } catch (e) { console.error('[History] Save error:', e); }
+    }
+
+    async function loadHistory() {
+      try {
+        const db = await openHistDB();
+        const tx = db.transaction(HIST_STORE, 'readonly');
+        const store = tx.objectStore(HIST_STORE);
+        return new Promise((resolve) => {
+          const req = store.getAll();
+          req.onsuccess = () => resolve((req.result || []).sort((a, b) => b.id - a.id));
+          req.onerror = () => resolve([]);
+        });
+      } catch (e) { return []; }
+    }
+
+    async function deleteHistory(id) {
+      try {
+        const db = await openHistDB();
+        const tx = db.transaction(HIST_STORE, 'readwrite');
+        tx.objectStore(HIST_STORE).delete(id);
+        await new Promise(r => { tx.oncomplete = r; });
+        renderHistory();
+      } catch (e) { console.error('[History] Delete error:', e); }
+    }
+
+    async function clearHistory() {
+      if (!confirm('Xóa toàn bộ lịch sử?')) return;
+      try {
+        const db = await openHistDB();
+        const tx = db.transaction(HIST_STORE, 'readwrite');
+        tx.objectStore(HIST_STORE).clear();
+        await new Promise(r => { tx.oncomplete = r; });
+        renderHistory();
+      } catch (e) { console.error('[History] Clear error:', e); }
+    }
+
+    async function restoreHistory(id) {
+      const all = await loadHistory();
+      const rec = all.find(h => h.id === id);
+      if (!rec) return;
+      orig = rec.orig; trans = rec.trans.map((t, i) => ({ ...rec.orig[i], text: t.text }));
+      fileName = rec.fileName;
+      G('src').value = rec.src; G('tgt').value = rec.tgt; G('mdl').value = rec.model;
+      G('filePill').style.display = '';
+      G('filePill').innerHTML = `<div class="file-pill"><span class="file-pill-name">📂 ${rec.fileName}.srt</span><span class="file-pill-meta">${rec.total} dòng · từ lịch sử</span><button class="file-pill-rm" onclick="rmFile()">&#x2715;</button></div>`;
+      G('btnGo').disabled = false; G('cntSub').textContent = orig.length;
+      G('secDl').style.display = ''; G('secVal').style.display = '';
+      renderSubs(); updateEst(); validate();
+      setStatus(`Đã khôi phục: ${rec.fileName} (${rec.done}/${rec.total} dòng)`, 'ok');
+      switchTab('subs', document.querySelector('.tab'));
+    }
+
+    async function renderHistory() {
+      const hist = await loadHistory();
+      G('cntHist').textContent = hist.length;
+      const el = G('histList');
+      if (!hist.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">⏳</div><div class="empty-txt">Chưa có lịch sử</div></div>'; return; }
+      el.innerHTML = hist.map(h => `
+        <div class="hist-item" onclick="restoreHistory(${h.id})">
+          <div class="hist-meta">
+            <strong>📄 ${h.fileName}.srt</strong>
+            ${h.date} · ${h.done}/${h.total} dòng · ${h.model}
+          </div>
+          <button class="hist-del" onclick="event.stopPropagation();deleteHistory(${h.id})">&#x2715;</button>
+        </div>`).join('');
+    }
+
+    // ── DELAY CONTROLS (preset-based) ──
+    // Delay tự động theo provider (giây/batch)
+    const AUTO_DELAY = { cliproxy: 0, gemini: 0, openai: 1, deepseek: 2, claude: 3, groq: 5, ollama: 0 };
+    function getDelaySec() {
+      const val = G('delayPreset')?.value || 'auto';
+      if (val === 'auto') return AUTO_DELAY[activeProv] ?? 0;
+      return parseInt(val) || 0;
+    }
+    function onDelayPresetChange() {
+      const sec = getDelaySec();
+      const hint = G('delayHint');
+      if (!hint) return;
+      if (sec === 0) hint.textContent = '⚡ Không chờ — giới hạn thấp rủi ro rate limit';
+      else if (sec <= 5) hint.textContent = `✅ ~${sec}s/batch — an toàn với hầu hết provider`;
+      else if (sec <= 20) hint.textContent = `⚠️ ~${sec}s/batch — khuyến nghị với provider có giới hạn`;
+      else hint.textContent = `🔔 ~${sec}s/batch — chậm nhưng an toàn 100%`;
+      updateEst();
+    }
+    function jitter() {
+      const sec = getDelaySec();
+      if (sec === 0) return 0;
+      // biến thiên ±20% ngẫu nhiên để không đều đặn
+      const variance = Math.round(sec * 0.2);
+      return sec - variance + Math.round(Math.random() * variance * 2);
+    }
+    // giữ backward compat cho onDelayChange (gọi từ loadSettings cũ)
+    function onDelayChange() { onDelayPresetChange(); }
+    async function countdown(sec, batchLabel) {
+      for (let t = sec; t > 0 && !stop; t--) {
+        setStatus(`⏳ Nghỉ ${t}s trước batch tiếp... ${batchLabel}`, 'warn');
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+
+    // ── SETTINGS ──
+    function loadSettings() {
+      const s = JSON.parse(localStorage.getItem('srt_v2') || '{}');
+      if (s.url) G('apiUrl').value = s.url;
+      if (s.mdl) G('mdl').value = s.mdl;
+      if (s.key) G('key').value = s.key;
+      if (s.src) G('src').value = s.src;
+      if (s.tgt) G('tgt').value = s.tgt;
+      if (s.batch) G('batch').value = s.batch;
+      if (s.prompt) G('promptBase').value = s.prompt;
+      if (s.custom) G('custom').value = s.custom;
+      if (s.prov) activeProv = s.prov;
+      if (s.delayPreset && G('delayPreset')) G('delayPreset').value = s.delayPreset;
+      onDelayPresetChange();
+    }
+    function saveSettings() {
+      localStorage.setItem('srt_v2', JSON.stringify({
+        url: G('apiUrl').value, mdl: G('mdl').value, key: G('key').value,
+        src: G('src').value, tgt: G('tgt').value, batch: G('batch').value,
+        prompt: G('promptBase').value, custom: G('custom').value, prov: activeProv,
+        delayPreset: G('delayPreset')?.value || 'auto'
+      }));
+      setStatus('Đã lưu cài đặt ✓', 'ok');
+    }
+
+    // ── INIT ──
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadSettings();
+      
+      // Auto-detect: nếu provider là python_backend nhưng server không chạy → chuyển sang groq
+      if (activeProv === 'python_backend') {
+        try {
+          const healthRes = await fetch('/health', { signal: AbortSignal.timeout(2000) });
+          if (!healthRes.ok) throw new Error('not ok');
+        } catch (e) {
+          console.warn('[Init] Backend server not running, switching to groq');
+          activeProv = 'groq';
+          setStatus('⚠️ Backend server không chạy → đã chuyển sang Groq. Nhập API key để dịch.', 'warn');
+        }
+      }
+      
+      // Populate model dropdown cho provider hiện tại
+      pick(activeProv);
+      if (!G('apiUrl').value) G('apiUrl').value = PROVIDERS[activeProv].url;
+      const savedKey = loadProviderKey(activeProv);
+      if (savedKey) G('key').value = savedKey;
+      if (G('provSelect')) G('provSelect').value = activeProv;
+      // Migrate localStorage history → IndexedDB (chỉ chạy 1 lần)
+      await migrateHistoryFromLS();
+      await renderHistory();
+      updateEst();
+      onDelayChange();
+    });
+
+    // ── PROVIDER KEY STORAGE ──
+    const PROV_KEYS = 'srt_pkeys';
+    function saveProviderKey(prov, val) {
+      const d = JSON.parse(localStorage.getItem(PROV_KEYS) || '{}');
+      d[prov] = val;
+      localStorage.setItem(PROV_KEYS, JSON.stringify(d));
+    }
+    function loadProviderKey(prov) {
+      return JSON.parse(localStorage.getItem(PROV_KEYS) || '{}')[prov] || '';
+    }
+
+    // \u2500\u2500 TOGGLE API DETAIL \u2500\u2500
+    function toggleApiDetail() {
+      const panel = G('apiDetail'), btn = G('toggleApiBtn');
+      panel.classList.toggle('open');
+      btn.classList.toggle('open');
+    }
+
+    // \u2500\u2500 STYLE PRESETS \u2500\u2500
+    const STYLE_PRESETS = [
+      {
+        name: '\ud83c\udfac Phim truy\u1ec7n',
+        text: 'D\u1ecbch v\u0103n phong t\u1ef1 nhi\u00ean nh\u01b0 ng\u01b0\u1eddi Vi\u1ec7t n\u00f3i chuy\u1ec7n. Ph\u00e2n bi\u1ec7t r\u00f5 anh/ch\u1ecb/em/t\u00f4i theo m\u1ed1i quan h\u1ec7 nh\u00e2n v\u1eadt. Gi\u1eef th\u00e0nh ng\u1eef v\u0103n ho\u00e1 t\u01b0\u01a1ng \u0111\u01b0\u01a1ng. C\u00e2u ng\u1eafn g\u1ecdn, c\u1ea3m x\u00fac r\u00f5 r\u00e0ng. Kh\u00f4ng d\u1ecbch t\u00ean ri\u00eang nh\u00e2n v\u1eadt.'
+      },
+      {
+        name: '\u2b50 Review phim',
+        text: 'V\u0103n phong ph\u00e2n t\u00edch, s\u1eafc s\u1ea3o, h\u00e0i h\u01b0\u1edbc \u0111\u00fang ch\u1ed7. Gi\u1eef thu\u1eadt ng\u1eef \u0111i\u1ec7n \u1ea3nh. D\u00f9ng "m\u00ecnh" thay "t\u00f4i" cho g\u1ea7n g\u0169i. C\u00e2u sinh \u0111\u1ed9ng, tr\u00e1nh c\u1ee9ng nh\u1eafc.'
+      },
+      {
+        name: '\ud83c\udf0d Du l\u1ecbch',
+        text: 'V\u0103n phong s\u00f4i n\u1ed5i, h\u00e0o h\u1ee9ng. D\u1ecbch t\u00ean \u0111\u1ecba danh sang ti\u1ebfng Vi\u1ec7t n\u1ebfu c\u00f3. Gi\u1eef \u1ea9m th\u1ef1c, \u0111\u1ecba danh b\u1eb1ng ng\u00f4n ng\u1eef g\u1ed1c k\u00e8m gi\u1ea3i th\u00edch ng\u1eafn. C\u00e2u c\u1ea3m th\u00e1n nhi\u1ec1u, \u0111\u1ed9ng l\u1ef1c kh\u00e1m ph\u00e1.'
+      },
+      {
+        name: '\ud83c\udfa5 Vlog/Kol',
+        text: 'V\u0103n phong tr\u1ebb trung, g\u1ea7n g\u0169i. D\u00f9ng "m\u00ecnh" v\u00e0 "b\u1ea1n". T\u1eeb l\u00f3ng ph\u1ed5 bi\u1ebfn OK n\u1ebfu t\u1ef1 nhi\u00ean. D\u00f9ng t\u1eeb c\u1ea3m th\u00e1n Vi\u1ec7t ("\u1ed2i", "wow", "\u0111\u1ecbnh"). N\u0103ng l\u01b0\u1ee3ng cao, kh\u00f4ng qu\u00e1 trang tr\u1ecdng.'
+      },
+      {
+        name: '\ud83c\udfac Documentary',
+        text: 'V\u0103n phong trang tr\u1ecdng, ch\u00ednh x\u00e1c. Gi\u1eef thu\u1eadt ng\u1eef chuy\u00ean ng\u00e0nh k\u00e8m gi\u1ea3i th\u00edch n\u1ebfu c\u1ea7n. Kh\u00f4ng d\u00f9ng t\u1eeb l\u00f3ng. C\u00e2u ho\u00e0n ch\u1ec9nh, \u0111\u1ea7y \u0111\u1ee7 ch\u1ee7 v\u1ecb. Gi\u1eef s\u1ed1 li\u1ec7u nguy\u00ean g\u1ed1c.'
+      },
+      {
+        name: '\ud83c\udf60 Anime/Manga',
+        text: 'Gi\u1eef "senpai", "sensei", "onii-chan"... n\u1ebfu kh\u00f4ng c\u00f3 t\u01b0\u01a1ng \u0111\u01b0\u01a1ng Vi\u1ec7t t\u1ef1 nhi\u00ean. V\u0103n phong tr\u1ebb trung, c\u1ea3m x\u00fac m\u1ea1nh. Gi\u1eef \u1ea2m thanh ti\u1ebfng Nh\u1eadt \u0111\u1eb7c tr\u01b0ng. Tho\u1ea1i ng\u1eafn, \u0111\u1ea9y c\u1ea3m x\u00fac.'
+      },
+      {
+        name: '\ud83e\uddea Khoa h\u1ecdc',
+        text: 'Ch\u00ednh x\u00e1c thu\u1eadt ng\u1eef, \u01b0u ti\u00ean ti\u1ebfng Vi\u1ec7t c\u00f3 s\u1eb5n. Thu\u1eadt ng\u1eef kh\u00f4ng c\u00f3 t\u01b0\u01a1ng \u0111\u01b0\u01a1ng th\u00ec gi\u1eef nguy\u00ean ti\u1ebfng Anh. Kh\u00f4ng \u01b0\u1edbc l\u01b0\u1ee3ng, kh\u00f4ng d\u1ecbch s\u1ed1 li\u1ec7u. C\u00e2u t\u01b0\u1eddng minh, r\u00f5 ngh\u0129a.'
+      },
+      {
+        name: '\ud83c\udfa7 Podcast',
+        text: 'V\u0103n phong n\u00f3i chuy\u1ec7n t\u1ef1 nhi\u00ean. Gi\u1eef nh\u1ecbp \u0111i\u1ec7u ng\u0169 \u0111i\u1ec7u g\u1ed1c. D\u00f9ng c\u00e2u r\u00fat g\u1ecdn khi ph\u00f9 h\u1ee3p. D\u1ea5u "..." cho ng\u01b0ng ngh\u1ec9. Kh\u00f4ng trang tr\u1ecdng, nh\u01b0 n\u00f3i chuy\u1ec7n.'
+      },
+    ];
+    let activeStyle = null;
+    function renderStyleChips() {
+      const el = G('styleChips'); if (!el) return;
+      el.innerHTML = STYLE_PRESETS.map((s, i) =>
+        `<div class="schip" id="schip-${i}" onclick="applyStyle(${i})">${s.name}</div>`
+      ).join('');
+    }
+    function applyStyle(idx) {
+      if (idx === '' || idx === null || idx === undefined) {
+        G('custom').value = '';
+        return;
+      }
+      const s = STYLE_PRESETS[parseInt(idx)];
+      if (s) G('custom').value = s.text;
+    }
+
+    // ── PROVIDER ──
+    function pick(name) {
+      const p = PROVIDERS[name]; if (!p) return;
+      saveProviderKey(activeProv, G('key').value);
+      G('apiUrl').value = p.url; G('mdl').value = p.mdl;
+      const saved = loadProviderKey(name);
+      G('key').value = saved || p.key || '';
+      if (G('provSelect')) G('provSelect').value = name;
+      activeProv = name;
+      // Cập nhật dropdown model theo provider
+      const mdlSel = G('mdlSelect');
+      const models = PROVIDER_MODELS[name] || [];
+      mdlSel.innerHTML = models.map(m => `<option value="${m.value}">${m.label}</option>`).join('');
+      mdlSel.value = p.mdl;
+      G('mdl').value = p.mdl;
+      // Toggle single vs mixed key area
+      const isMixed = (name === 'python_backend');
+      if (G('singleKeyArea')) G('singleKeyArea').style.display = isMixed ? 'none' : '';
+      if (G('mixedKeyArea')) G('mixedKeyArea').style.display = isMixed ? '' : 'none';
+      if (isMixed) { loadMixedKeys(); updateMixedEst(); }
+      updateEst();
+      setStatus('Đã chọn: ' + name.toUpperCase() + ' · ' + p.mdl, 'ok');
+    }
+
+    // ── MIXED PROVIDER HELPERS ──
+    function getMixedTaggedKeys() {
+      const groqKeys = (G('groqKeys')?.value || '').split('\n').map(k => k.trim()).filter(k => k);
+      const geminiKeys = (G('geminiKeys')?.value || '').split('\n').map(k => k.trim()).filter(k => k);
+      const groqModel = G('groqModelSelect')?.value || 'llama-3.3-70b-versatile';
+      const geminiModel = G('geminiModelSelect')?.value || 'gemini-2.5-flash';
+      // Build tagged key list
+      const tagged = [];
+      groqKeys.forEach(k => tagged.push(`groq:${groqModel}:${k}`));
+      geminiKeys.forEach(k => tagged.push(`gemini:${geminiModel}:${k}`));
+      return tagged;
+    }
+    function updateMixedEst() {
+      const groqKeys = (G('groqKeys')?.value || '').split('\n').filter(k => k.trim()).length;
+      const geminiKeys = (G('geminiKeys')?.value || '').split('\n').filter(k => k.trim()).length;
+      if (G('groqKeyCount')) G('groqKeyCount').textContent = groqKeys + ' keys';
+      if (G('geminiKeyCount')) G('geminiKeyCount').textContent = geminiKeys + ' keys';
+      const groqRPM = groqKeys * 30;
+      const geminiModel = G('geminiModelSelect')?.value || '';
+      const geminiRPMPerKey = geminiModel.includes('pro') ? 360 : 2000;
+      const geminiRPM = geminiKeys * geminiRPMPerKey;
+      const totalRPM = groqRPM + geminiRPM;
+      const totalKeys = groqKeys + geminiKeys;
+      let html = '';
+      if (totalKeys === 0) {
+        html = 'Chưa nhập key nào';
+      } else {
+        const parts = [];
+        if (groqKeys > 0) parts.push(`⚡ ${groqKeys} Groq (${groqRPM} RPM)`);
+        if (geminiKeys > 0) parts.push(`✨ ${geminiKeys} Gemini (${geminiRPM.toLocaleString()} RPM)`);
+        html = `🔀 ${parts.join(' + ')} = <b>${totalRPM.toLocaleString()} RPM tổng</b>`;
+      }
+      if (G('mixedSummary')) G('mixedSummary').innerHTML = html;
+      if (G('keyHint')) G('keyHint').textContent = totalKeys + ' key' + (totalKeys > 1 ? ' · đa luồng mixed provider' : '');
+      updateEst();
+    }
+    const MIXED_KEYS_STORAGE = 'srt_mixed_keys';
+    function saveMixedKeys() {
+      const data = {
+        groqKeys: G('groqKeys')?.value || '',
+        geminiKeys: G('geminiKeys')?.value || '',
+        groqModel: G('groqModelSelect')?.value || '',
+        geminiModel: G('geminiModelSelect')?.value || '',
+      };
+      localStorage.setItem(MIXED_KEYS_STORAGE, JSON.stringify(data));
+    }
+    function loadMixedKeys() {
+      try {
+        const data = JSON.parse(localStorage.getItem(MIXED_KEYS_STORAGE) || '{}');
+        if (data.groqKeys && G('groqKeys')) G('groqKeys').value = data.groqKeys;
+        if (data.geminiKeys && G('geminiKeys')) G('geminiKeys').value = data.geminiKeys;
+        if (data.groqModel && G('groqModelSelect')) G('groqModelSelect').value = data.groqModel;
+        if (data.geminiModel && G('geminiModelSelect')) G('geminiModelSelect').value = data.geminiModel;
+      } catch(e) {}
+    }
+
+    // ── FILE QUEUE ──
+    let fileQueue = [];  // Queue of pending File objects
+    let autoMode = false; // true when processing queue
+    
+    function handleFileInput(fileList) {
+      const files = [...fileList].filter(f => f.name.endsWith('.srt'));
+      if (files.length > 1) {
+        fileQueue = files.slice(1);
+        autoMode = true;
+        log(`[Queue] ${files.length} files queued. Auto-mode ON.`);
+        loadFile(files[0]);
+        renderQueue();
+        setTimeout(() => { if (!busy && orig.length) startTranslation(); }, 1000);
+      } else if (files.length === 1) {
+        loadFile(files[0]);
+      }
+    }
+    
+    function onDrop(e) {
+      e.preventDefault(); G('dz').classList.remove('on');
+      handleFileInput(e.dataTransfer.files);
+    }
+    
+    let completedFiles = [];
+    
+    function renderQueue() {
+      const panel = G('queuePanel');
+      const list = G('queueList');
+      if (!autoMode && fileQueue.length === 0 && completedFiles.length === 0) {
+        panel.style.display = 'none';
+        return;
+      }
+      panel.style.display = '';
+      let html = '';
+      // Completed files
+      for (const f of completedFiles) {
+        html += `<div style="display:flex;align-items:center;gap:4px;padding:2px 0;color:var(--text3)"><span style="color:var(--green)">✅</span> ${f}</div>`;
+      }
+      // Current file
+      if (fileName) {
+        html += `<div style="display:flex;align-items:center;gap:4px;padding:2px 0;font-weight:600;color:var(--text)"><span style="color:var(--blue,#3b82f6)">▶</span> ${fileName}.srt ${busy ? '⏳' : ''}</div>`;
+      }
+      // Pending files
+      for (let i = 0; i < fileQueue.length; i++) {
+        html += `<div style="display:flex;align-items:center;gap:4px;padding:2px 0;color:var(--text2)"><span style="color:var(--yellow)">⏳</span> ${fileQueue[i].name}</div>`;
+      }
+      // Summary
+      html += `<div style="margin-top:4px;font-size:10px;color:var(--text3)">${completedFiles.length} xong · ${fileQueue.length} chờ</div>`;
+      list.innerHTML = html;
+    }
+    function loadFile(f) {
+      if (!f) return;
+      fileName = f.name.replace(/\.srt$/i, '');
+      
+      // Show file info IMMEDIATELY (before parsing)
+      G('filePill').style.display = '';
+      G('filePill').innerHTML = `<div class="file-pill"><span class="file-pill-name">📄 ${f.name}</span><span class="file-pill-meta">⏳ Đang tải...</span></div>`;
+      setStatus('⏳ Đang tải file...', 'ok');
+      
+      const r = new FileReader();
+      r.onload = e => {
+        orig = parseSRT(e.target.result);
+        trans = orig.map(s => ({ ...s, text: '' }));
+        
+        // Update file info instantly
+        G('filePill').innerHTML = `<div class="file-pill"><span class="file-pill-name">📄 ${f.name}</span><span class="file-pill-meta">${orig.length} dòng · ${(f.size / 1024).toFixed(1)}KB</span><button class="file-pill-rm" onclick="rmFile()">✕</button></div>`;
+        G('cntSub').textContent = orig.length;
+        G('btnGo').disabled = false;
+        if (G('btnGoHint')) G('btnGoHint').style.display = 'none';
+        G('secCharAnalysis').style.display = '';
+        loadCharCache();
+        
+        // Defer heavy render to next frame for instant UI feedback
+        requestAnimationFrame(() => {
+          renderSubs();
+          setStatus(`Đã tải: ${orig.length} phụ đề`, 'ok');
+          switchTab('subs', document.querySelector('.tab'));
+          updateEst();
+          loadSeoCache();
+        });
+      };
+      r.readAsText(f, 'utf-8');
+    }
+    function rmFile() { orig = []; trans = []; fileName = ''; window._origIdMap = null; G('filePill').style.display = 'none'; G('btnGo').disabled = true; G('cntSub').textContent = '0'; G('secCharAnalysis').style.display = 'none'; renderSubs(); setStatus('Sẵn sàng'); }
+
+    // ── CHARACTER ANALYSIS ──
+    function getCharContextBlock() {
+      const ctx = G('charContext')?.value?.trim();
+      if (!ctx) return '';
+      const tgtTxt = G('tgt')?.options[G('tgt')?.selectedIndex]?.text?.replace(/[^\w\s\u00C0-\u024F]/g, '').trim() || '';
+      return `\n\n[CHARACTER & ADDRESSING RULES — STRICTLY follow these rules for ${tgtTxt} translation]\n` + ctx + '\n[END RULES]';
+    }
+    function saveCharCache() {
+      if (!fileName) return;
+      const ctx = G('charContext')?.value || '';
+      if (ctx.trim()) {
+        localStorage.setItem('srt_charCtx_' + fileName, ctx);
+      } else {
+        localStorage.removeItem('srt_charCtx_' + fileName);
+      }
+    }
+    function loadCharCache() {
+      if (!fileName) return;
+      const cached = localStorage.getItem('srt_charCtx_' + fileName);
+      if (cached && G('charContext')) {
+        G('charContext').value = cached;
+        G('charStatus').innerHTML = '<span style="color:var(--green)">✅ Đã tải cache nhân vật từ lần trước</span>';
+        log('[CharCtx] Loaded cache cho ' + fileName);
+      }
+    }
+    function importCharFile() {
+      const inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = '.txt';
+      inp.onchange = () => {
+        const f = inp.files[0];
+        if (!f) return;
+        const r = new FileReader();
+        r.onload = e => {
+          G('charContext').value = e.target.result;
+          saveCharCache();
+          G('charStatus').innerHTML = '<span style="color:var(--green)">✅ Đã tải: ' + f.name + '</span>';
+          log('[CharCtx] Imported: ' + f.name);
+        };
+        r.readAsText(f, 'utf-8');
+      };
+      inp.click();
+    }
+    // Language-specific prompt guide — reusable
+    function getLangGuide(tgtTxt) {
+      const t = (tgtTxt || '').toLowerCase();
+      if (t.includes('viet')) return `
+HƯỎNG DẪN ĐẶC BIỆT CHO TIẤNG VIỆT:
+- Tên nhân vật Trung Quốc: PHẢI phiên âm Hán-Việt (ví dụ: 李白 → Lý Bạch, 张三 → Trương Tam, 小龙 → Tiểu Long)
+- Tên nhân vật Nhật/Hàn: phiên âm theo cách đọc phổ biến tiếng Việt
+- Đại từ xưng hô PHẢI phân biệt theo vai vế, KHÔNG dùng chung chung:
+  • Vua/Hoàng đế: xưng "trẫm/ta", gọi thần dân "khanh/ngươi"
+  • Quan/Thần: xưng "thần/hạ quan", gọi vua "bệ hạ/hoàng thượng"
+  • Sư phụ/Đồ đệ: sư phụ xưng "ta/vi sư", gọi "đồ đệ/con"; đồ đệ xưng "đệ tử/con", gọi "sư phụ/sư tôn"
+  • Sư huynh/Sư đệ: huynh xưng "ta/sư huynh", gọi "sư đệ/sư muội"; đệ xưng "đệ/tiểu đệ", gọi "sư huynh/sư tỷ"
+  • Vợ chồng: chồng xưng "ta/phu quân", gọi "nương tử/hiền thê"; vợ xưng "thiếp/ta", gọi "phu quân/tướng công"
+  • Cha mẹ/Con: cha xưng "ta/cha", gọi "con/nhi"; con xưng "con/hài nhi", gọi "cha/phụ thân/mẫu thân"
+  • Chủ/Tớ: chủ xưng "ta/bản toạ", gọi "ngươi"; tớ xưng "thuộc hạ/nô tài", gọi "chủ nhân/công tử/tiểu thư"
+  • Bạn bè ngang hàng: xưng "ta/tại hạ", gọi "huynh/đệ/ngươi"
+  • Kẻ thù/đối thủ: xưng "ta/bản toạ", gọi "ngươi/tên kia"
+  • Tu tiên/Kiếm hiệp: dùng "đạo hữu", "tiền bối/vãn bối", "bần đạo/bần tăng"
+- Thuật ngữ đặc thù: 两=lượng, 银子=bạc, 金子=vàng, 灵石=linh thạch, 丹药=đan dược, 功法=công pháp
+- Cấp bậc tu luyện: giữ nguyên hệ thống Hán-Việt (Luyện Khí, Trúc Cơ, Kim Đan, Nguyên Anh...)
+- Mô tả nhân vật và quan hệ viết bằng TIẤNG VIỆT`;
+      if (t.includes('japan')) return `
+SPECIAL GUIDE FOR JAPANESE:
+- Use appropriate keigo levels: 丁寧語 (polite), 尊敬語 (respectful), 謙譲語 (humble)
+- Specify name suffixes: -san, -sama, -kun, -chan, -sensei, -senpai as appropriate
+- Character descriptions in Japanese`;
+      if (t.includes('korea')) return `
+SPECIAL GUIDE FOR KOREAN:
+- Specify speech level: 존댓말 (formal), 반말 (informal), 하십시오체, 해요체, 해체
+- Honorific markers: -님, -씨, -선배, -후배
+- Character descriptions in Korean`;
+      return '';
+    }
+    function previewLangGuide() {
+      try {
+        const el = G('langGuidePreview');
+        if (!el) { console.error('langGuidePreview not found'); return; }
+        if (el.style.display === 'block') { el.style.display = 'none'; return; }
+        const tgtSel = G('tgt');
+        const tgtTxt = tgtSel ? (tgtSel.options[tgtSel.selectedIndex] || {}).text || '' : '';
+        const cleanTgt = tgtTxt.replace(/[^\w\s\u00C0-\u024F]/g, '').trim() || 'Unknown';
+        const guide = getLangGuide(cleanTgt);
+        if (!guide) {
+          el.textContent = '\u26a0\ufe0f Ng\u00f4n ng\u1eef \u0111\u00edch "' + cleanTgt + '" \u2014 kh\u00f4ng c\u00f3 h\u01b0\u1edbng d\u1eabn \u0111\u1eb7c bi\u1ec7t.\nS\u1ebd d\u00f9ng prompt English g\u1ed1c (\u0111a ng\u00f4n ng\u1eef).';
+        } else {
+          el.textContent = '\ud83c\udfaf Target: ' + cleanTgt + '\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n' + guide.trim();
+        }
+        el.style.display = 'block';
+      } catch(e) { console.error('previewLangGuide error:', e); }
+    }
+    async function analyzeCharacters() {
+      if (!orig.length) { setStatus('Tải file SRT trước!', 'err'); return; }
+      const url = G('apiUrl').value.trim();
+      const mdl = G('mdl').value.trim();
+      const key = getKeys()[0] || '';
+      if (!url || !key) { setStatus('Cấu hình API key trước!', 'err'); return; }
+
+      const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const srcTxt = G('src').options[G('src').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+
+      const allText = orig.map((s, i) => `[${i+1}] ${s.text}`).join('\n');
+      const charCount = allText.length;
+      log(`[CharCtx] Analyzing ${orig.length} lines (${charCount} chars) [${srcTxt} → ${tgtTxt}]...`);
+
+      G('btnAnalyze').disabled = true;
+      G('charStatus').innerHTML = '<span style="color:var(--yellow)">⏳ Analyzing ' + orig.length + ' lines...</span>';
+
+      const langGuide = getLangGuide(tgtTxt);
+
+      const analysisPrompt = `You are an expert subtitle and linguistics analyst. Analyze ALL the subtitle text below (source language: ${srcTxt}, target language: ${tgtTxt}) and extract:
+
+1. **[CHARACTERS]** — Every character appearing in dialogue:
+   - Original name → ${tgtTxt} transliteration/localization
+   - Gender, estimated age, role (protagonist/antagonist/supporting/system-narrator)
+   - Social position/rank (king/minister/commoner/master/disciple/elder/servant...)
+
+2. **[ADDRESSING]** — For EACH pair of interacting characters:
+   - Their relationship type: master/disciple, married couple, siblings, lord/servant, friends, rivals, parent/child, superior/subordinate...
+   - How A refers to themselves (first-person pronoun) and addresses B (second-person / title)
+   - How B refers to themselves and addresses A
+   - IMPORTANT: Use culturally appropriate ${tgtTxt} pronouns, honorifics, and titles that match their relationship, social hierarchy, and the story's era/setting
+${langGuide}
+
+3. **[TERMS]** — Specialized vocabulary needing consistent translation:
+   - Units of measurement, currency, ranks/titles
+   - Domain-specific terms (martial arts/cultivation/court/military/magic...)
+   - Recurring phrases or catchphrases
+
+Output FORMAT (follow EXACTLY, write descriptions in ${tgtTxt}):
+
+[CHARACTERS]
+- OriginalName → ${tgtTxt}Name (gender, role, brief description)
+
+[ADDRESSING]
+N. CharA ↔ CharB (relationship)
+   - A self: "...", calls B: "..."
+   - B self: "...", calls A: "..."
+
+[TERMS]
+- OriginalTerm → ${tgtTxt}Translation
+
+Subtitle text:
+${allText}`;
+
+      try {
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (key) hdrs['Authorization'] = 'Bearer ' + key;
+        const body = {
+          model: mdl,
+          messages: [
+            { role: 'system', content: `You are an expert subtitle analyst specializing in character relationship analysis and cultural localization. Output structured analysis in ${tgtTxt}. Be concise, no explanations.` },
+            { role: 'user', content: analysisPrompt }
+          ],
+          temperature: 0.2,
+          max_tokens: 8192
+        };
+        const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+        if (!res.ok) {
+          const et = await res.text();
+          throw new Error(`API ${res.status}: ${et.slice(0, 150)}`);
+        }
+        const data = await res.json();
+        const analysis = (data.choices?.[0]?.message?.content || '').trim();
+        G('charContext').value = analysis;
+        saveCharCache();
+        G('charStatus').innerHTML = `<span style="color:var(--green)">✅ Done! ${analysis.length} chars. You can edit before translating.</span>`;
+        log(`[CharCtx] ✅ Complete: ${analysis.length} chars`);
+      } catch (e) {
+        G('charStatus').innerHTML = `<span style="color:var(--red)">❌ Error: ${e.message}</span>`;
+        log(`[CharCtx] ❌ Error: ${e.message}`);
+      }
+      G('btnAnalyze').disabled = false;
+    }
+
+    // ── SRT PARSER ──
+    function parseSRT(txt) {
+      const lines = txt.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+      const subs = [];
+      let i = 0;
+      while (i < lines.length) {
+        while (i < lines.length && lines[i].trim() === '') i++;
+        if (i >= lines.length) break;
+        const id = parseInt(lines[i].trim());
+        if (isNaN(id)) { i++; continue; }
+        i++;
+        if (i >= lines.length) break;
+        // Parse timestamp line using indexOf to avoid regex mangling
+        const tsLine = lines[i];
+        const arrowIdx = tsLine.indexOf('-->');
+        if (arrowIdx < 0) { i++; continue; }
+        // replaceAll để xử lý đúng 00:01,234 → 00:01.234 (không chỉ replace lần đầu)
+        const start = tsLine.slice(0, arrowIdx).trim().replace(/,/g, '.');
+        const end = tsLine.slice(arrowIdx + 3).trim().replace(/,/g, '.');
+        i++;
+        const tl = [];
+        while (i < lines.length && lines[i].trim() !== '') { tl.push(lines[i]); i++; }
+        subs.push({ id, start, end, text: tl.join('\n') });
+      }
+      return subs;
+    }
+    function buildSRT(subs) {
+      const validTs = t => {
+        if (!t || t.length < 8) return null;
+        return t.replace(/\./g, ',');
+      };
+      return subs.filter(s => {
+        // Skip invalid entries
+        if (!s.start || !s.end || !s.id) return false;
+        if (s.start.length < 8 || s.end.length < 8) return false;
+        return true;
+      }).map(s => {
+        const st = validTs(s.start) || '00:00:00,000';
+        const en = validTs(s.end) || '00:00:01,000';
+        return s.id + '\n' + st + ' --> ' + en + '\n' + (s.text || '.') + '\n';
+      }).join('\n');
+    }
+
+
+    // ── VIRTUAL SCROLL RENDER ──
+    const VS_ROW_H = 80;    // Fixed row height (px)
+    const VS_OVERSCAN = 5;  // Extra rows above/below viewport
+    let vsStart = 0, vsEnd = 0; // Current visible range
+    let subsRendered = false;
+
+    function renderSubs() {
+      const list = G('subList');
+      if (!orig.length) {
+        list.innerHTML = '<div class="empty"><div class="empty-ico">📝</div><div class="empty-txt">Tải file .srt ở Bước 1 để bắt đầu</div></div>';
+        subsRendered = false;
+        return;
+      }
+
+      // Small files (< 40 rows): render trực tiếp, không cần virtual scroll
+      if (orig.length < 40) {
+        list.innerHTML = '';
+        list.style.maxHeight = '';
+        list.style.overflow = '';
+        const frag = document.createDocumentFragment();
+        orig.forEach((o, i) => {
+          frag.appendChild(createSubRow(o, i));
+        });
+        list.appendChild(frag);
+        subsRendered = true;
+        requestAnimationFrame(() => list.querySelectorAll('.sub-ta').forEach(ta => ar(ta)));
+        return;
+      }
+
+      // Virtual scroll setup
+      const totalH = orig.length * VS_ROW_H;
+      list.innerHTML = `<div id="vsSpacer" style="height:${totalH}px;position:relative"></div>`;
+      list.style.maxHeight = 'calc(100vh - 180px)';
+      list.style.overflow = 'auto';
+
+      // Debounced scroll handler
+      let scrollRAF = null;
+      list.onscroll = () => {
+        if (scrollRAF) cancelAnimationFrame(scrollRAF);
+        scrollRAF = requestAnimationFrame(() => vsRenderWindow(list));
+      };
+
+      subsRendered = true;
+      vsRenderWindow(list);
+    }
+
+    function createSubRow(o, i) {
+      const t = trans[i];
+      const ec = valErrs.find(e => e.id === o.id);
+      const row = document.createElement('div');
+      row.className = 'sub-row' + (ec?.type === 'error' ? ' err' : ec?.type === 'warning' ? ' warn' : '');
+      row.id = 'row-' + o.id;
+      row.style.height = orig.length >= 40 ? VS_ROW_H + 'px' : '';
+      row.style.overflow = 'hidden';
+      row.innerHTML = `<div class="sub-cell">${o.id}</div>
+      <div class="sub-cell"><div class="sub-ts">${o.start} → ${o.end}</div></div>
+      <div class="sub-cell">
+        <textarea class="sub-ta" data-i="${i}" oninput="onEdit(this)" rows="1" style="${orig.length >= 40 ? 'height:50px;resize:none' : ''}"></textarea>
+        <button class="btn-retry" id="retry-${i}" onclick="retransleSingle(${i})" title="Dịch lại dòng này">↩ Dịch lại</button>
+      </div>`;
+      // Safe text insertion
+      row.querySelector('.sub-cell:nth-child(2)').appendChild(
+        Object.assign(document.createElement('div'), { textContent: o.text, style: orig.length >= 40 ? 'max-height:50px;overflow:hidden;font-size:12px' : '' })
+      );
+      row.querySelector('textarea').value = t?.text || '';
+      return row;
+    }
+
+    function vsRenderWindow(list) {
+      if (!orig.length || orig.length < 60) return;
+      const spacer = G('vsSpacer');
+      if (!spacer) return;
+
+      const scrollTop = list.scrollTop;
+      const viewH = list.clientHeight;
+      const newStart = Math.max(0, Math.floor(scrollTop / VS_ROW_H) - VS_OVERSCAN);
+      const newEnd = Math.min(orig.length, Math.ceil((scrollTop + viewH) / VS_ROW_H) + VS_OVERSCAN);
+
+      // Skip if same range
+      if (newStart === vsStart && newEnd === vsEnd && spacer.children.length > 0) return;
+      vsStart = newStart;
+      vsEnd = newEnd;
+
+      // Clear and rebuild visible rows
+      spacer.innerHTML = '';
+      const frag = document.createDocumentFragment();
+      for (let i = newStart; i < newEnd; i++) {
+        const row = createSubRow(orig[i], i);
+        row.style.position = 'absolute';
+        row.style.top = (i * VS_ROW_H) + 'px';
+        row.style.left = '0';
+        row.style.right = '0';
+        frag.appendChild(row);
+      }
+      spacer.appendChild(frag);
+    }
+
+    // Cập nhật CHỈ các textarea đã thay đổi
+    function updateSubsPartial(changedIds) {
+      if (!subsRendered) return;
+      const list = G('subList');
+
+      if (changedIds && changedIds.length > 0) {
+        changedIds.forEach(id => {
+          const idx = orig.findIndex(o => o.id === id);
+          if (idx < 0) return;
+          // Virtual scroll: chỉ update nếu row đang visible
+          const ta = list.querySelector(`textarea[data-i="${idx}"]`);
+          if (ta && trans[idx]) {
+            ta.value = trans[idx].text || '';
+            if (orig.length < 60) ar(ta);
+          }
+          const row = G('row-' + id);
+          if (row) {
+            const ec = valErrs.find(e => e.id === id);
+            row.classList.remove('err', 'warn');
+            if (ec?.type === 'error') row.classList.add('err');
+            else if (ec?.type === 'warning') row.classList.add('warn');
+          }
+        });
+      } else {
+        // Fallback: update all visible textareas
+        if (orig.length >= 40) {
+          // Virtual scroll: re-render current window
+          vsRenderWindow(list);
+        } else {
+          trans.forEach((t, i) => {
+            const ta = list.querySelector(`textarea[data-i="${i}"]`);
+            if (ta && ta.value !== (t?.text || '')) {
+              ta.value = t?.text || '';
+              ar(ta);
+            }
+          });
+        }
+      }
+    }
+
+    function onEdit(el) { const i = parseInt(el.dataset.i); if (trans[i]) trans[i].text = el.value; if (orig.length < 60) ar(el); }
+    function ar(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+
+    // ── DỊCH LẠI 1 DÒNG ──
+    async function retransleSingle(idx) {
+      if (busy) { setStatus('Đang bận, vui lòng chờ...', 'warn'); return; }
+      const o = orig[idx];
+      if (!o) return;
+      const btn = G('retry-' + idx);
+      if (btn) { btn.disabled = true; btn.classList.add('spinning'); }
+
+      let url = G('apiUrl').value.trim();
+      const mdl = G('mdl').value.trim();
+      // lấy key đầu tiên sạch (tránh multi-line gây lỗi header)
+      const key = getKeys()[0] || '';
+
+      // Fix 422: khi backend mode, dùng /retry thay vì /translate
+      if (url === '/translate' || url.endsWith('/translate')) {
+        url = '/retry';
+      }
+
+      if (!url) {
+        setStatus('Lỗi: Chưa cài API Endpoint ở Bước 2!', 'err');
+        if (btn) { btn.disabled = false; btn.classList.remove('spinning'); }
+        return;
+      }
+      const stripNW = t => t.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const srcTxt = stripNW(G('src').options[G('src').selectedIndex].text);
+      const tgtTxt = stripNW(G('tgt').options[G('tgt').selectedIndex].text);
+      const basePrompt = G('promptBase').value.trim();
+      const custom = G('custom').value.trim();
+      const fullPrompt = basePrompt
+        + (custom ? '\n\nYêu cầu thêm:\n' + custom : '')
+        + `\n\nNgôn ngữ gốc: ${srcTxt}\nNgôn ngữ đích: ${tgtTxt}`
+        + `\n\nDịch ĐÚNG 1 dòng phụ đề sau SANG ${tgtTxt}. Trả về CHỈ bản dịch bằng ${tgtTxt}, không thêm gì khác.`;
+
+      try {
+        setStatus(`Đang dịch lại dòng #${o.id}...`);
+        const body = {
+          model: mdl,
+          messages: [
+            { role: 'system', content: fullPrompt },
+            { role: 'user', content: o.text }
+          ],
+          temperature: 0.3,
+          max_tokens: 512
+        };
+        const hdrs = { 'Content-Type': 'application/json' };
+        if (key) hdrs['Authorization'] = 'Bearer ' + key;
+        const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+        if (!res.ok) { const et = await res.text(); throw new Error('Lỗi API ' + res.status + ': ' + et.slice(0, 100)); }
+        const data = await res.json();
+        const aiTxt = (data.choices?.[0]?.message?.content || '').trim();
+        if (aiTxt) {
+          if (trans[idx]) trans[idx].text = aiTxt;
+          // Cập nhật textarea trực tiếp mà không render lại toàn bộ
+          const ta = document.querySelector(`textarea[data-i="${idx}"]`);
+          if (ta) { ta.value = aiTxt; ar(ta); }
+          const row = G('row-' + o.id);
+          if (row) row.classList.remove('err', 'warn');
+          log(`[Dịch lại #${o.id}] ${o.text} → ${aiTxt}`);
+          setStatus(`Đã dịch lại dòng #${o.id} ✓`, 'ok');
+        }
+      } catch (err) {
+        setStatus('Lỗi: ' + err.message, 'err');
+        log('❌ Dịch lại #' + o.id + ': ' + err.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.classList.remove('spinning'); }
+      }
+    }
+    // ── DETECT SOURCE CHARS IN TRANSLATION ──
+    function detectSourceChars(text, srcLang) {
+      if (!text) return null;
+      // Khi srcLang = 'auto' hoặc không xác định: kiểm tra TẤT CẢ loại ký tự ngoại
+      if (srcLang === 'auto' || !srcLang) {
+        // Check CJK (Chinese/Japanese) + Korean + Thai
+        const m = text.match(/[\u4e00-\u9fff\u3040-\u30ff\u3400-\u4dbf\uac00-\ud7af\u0e00-\u0e7f]/g);
+        return m ? m.join('') : null;
+      }
+      if (srcLang === 'zh' || srcLang === 'ja') {
+        const m = text.match(/[\u4e00-\u9fff\u3040-\u30ff\u3400-\u4dbf]/g);
+        return m ? m.join('') : null;
+      }
+      if (srcLang === 'ko') { const m = text.match(/[\uac00-\ud7af]/g); return m ? m.join('') : null; }
+      if (srcLang === 'th') { const m = text.match(/[\u0e00-\u0e7f]/g); return m ? m.join('') : null; }
+      if (srcLang === 'ru' || srcLang === 'uk') { const m = text.match(/[\u0400-\u04ff]/g); return m ? m.join('') : null; }
+      if (srcLang === 'ar') { const m = text.match(/[\u0600-\u06ff\u0750-\u077f]/g); return m ? m.join('') : null; }
+      if (srcLang === 'hi') { const m = text.match(/[\u0900-\u097f]/g); return m ? m.join('') : null; }
+      // Ngôn ngữ Latin → vẫn check CJK (trường hợp dịch Trung → Việt mà nguồn set 'vi')
+      const m = text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g);
+      return m ? m.join('') : null;
+    }
+
+    // ── AUTO QA: TURBO BATCH — 20 dòng/call × 10 parallel ──
+    let pipelineBusy = false; // Prevent race condition during auto-pipeline
+    
+    async function autoQaBatch(batch, url, mdl, key, fullPrompt) {
+      if (url === '/translate' || url.endsWith('/translate')) {
+        url = '/retry';
+      }
+      const srcLang = G('src').value;
+      const allKeys = getKeys();
+      const LINES_PER_CALL = 20;
+      const PARALLEL = Math.min(10, Math.max(3, allKeys.length * 3));
+      
+      // Collect problem lines — O(1) lookup via _origIdMap
+      const problems = [];
+      for (const orig_s of batch) {
+        let idx = window._origIdMap ? window._origIdMap.get(String(orig_s.id)) : trans.findIndex(s => s.id === orig_s.id);
+        if (idx === undefined || idx < 0) continue;
+        const t = trans[idx]?.text || '';
+        const o = orig_s.text || '';
+        if (!o.trim()) continue;
+        const isEmpty = !t.trim() || t === '.';
+        const unchanged = t.trim().toLowerCase() === o.trim().toLowerCase();
+        const tooShort = t.length < o.length * 0.25 && o.length > 10;
+        const hasMixed = !!detectSourceChars(t, srcLang);
+        if (!isEmpty && !unchanged && !tooShort && !hasMixed) continue;
+        problems.push({ idx, orig_s, o });
+      }
+      if (!problems.length) return;
+      log(`[Auto-QA] ${problems.length} dòng — TURBO ${LINES_PER_CALL}×${PARALLEL}`);
+      
+      const batches = [];
+      for (let i = 0; i < problems.length; i += LINES_PER_CALL) {
+        batches.push(problems.slice(i, i + LINES_PER_CALL));
+      }
+      
+      async function fixBatch(batchItems, batchKey) {
+        try {
+          const tgtName = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+          const numbered = batchItems.map((p, i) => {
+            const current = trans[p.idx]?.text || '(trống)';
+            return `[${i+1}] GỐC: ${p.o}\nDỊCH: ${current}`;
+          }).join('\n');
+          const sysPrompt = fullPrompt + `\n\nKIỂM TRA & SỬA ${batchItems.length} bản dịch sau. Mỗi cặp có GỐC và DỊCH.
+Quy tắc:
+- Nếu bản DỊCH đúng nghĩa, tự nhiên, hoàn toàn bằng ${tgtName} → giữ nguyên
+- Nếu bản DỊCH sai nghĩa, thiếu ý, còn ký tự gốc, hoặc trống → SỬA LẠI
+- Output: [1] bản dịch đã sửa (hoặc giữ nguyên)\n[2] ...\nPHẢI hoàn toàn bằng ${tgtName}. Chỉ trả bản dịch:`;
+          const body = {
+            model: mdl,
+            messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: numbered }],
+            temperature: 0.15, max_tokens: 2048
+          };
+          const hdrs = { 'Content-Type': 'application/json' };
+          if (batchKey) hdrs['Authorization'] = 'Bearer ' + batchKey;
+          const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+          if (!res.ok) { log(`[QA] batch lỗi ${res.status}`); return 0; }
+          const data = await res.json();
+          const content = (data.choices?.[0]?.message?.content || '').trim();
+          
+          let fixed = 0;
+          for (const line of content.split('\n')) {
+            const m = line.match(/^\[(\d+)\]\s*(.+)/);
+            if (!m) continue;
+            const num = parseInt(m[1]) - 1;
+            const aiTxt = m[2].trim();
+            if (num < 0 || num >= batchItems.length) continue;
+            const p = batchItems[num];
+            const stillBad = detectSourceChars(aiTxt, srcLang);
+            if (aiTxt && aiTxt.toLowerCase() !== p.o.trim().toLowerCase() && !stillBad) {
+              if (trans[p.idx]) trans[p.idx].text = aiTxt;
+              fixed++;
+            }
+          }
+          return fixed;
+        } catch(e) { log(`[QA] batch error: ${e.message}`); return 0; }
+      }
+      
+      let totalFixed = 0;
+      for (let i = 0; i < batches.length; i += PARALLEL) {
+        if (stop) break;
+        const wave = batches.slice(i, i + PARALLEL);
+        const done = i + wave.length;
+        setStatus(`🔍 QA turbo: ${i+1}-${done}/${batches.length} batch...`, 'warn');
+        // Rotate keys across parallel requests
+        const results = await Promise.allSettled(wave.map((b, wi) => fixBatch(b, allKeys[wi % allKeys.length] || key)));
+        for (const r of results) {
+          if (r.status === 'fulfilled') totalFixed += r.value;
+        }
+      }
+      log(`[Auto-QA] Turbo xong: ${totalFixed}/${problems.length} sửa OK`);
+    }
+
+    // ── QUÉT VÀ SỬA KÝ TỰ CHƯA DỊCH — TURBO BATCH ──
+    async function scanMixedChars() {
+      if (busy && !pipelineBusy) { setStatus('Đang bận...', 'warn'); return; }
+      if (!orig.length) return;
+      const srcLang = G('src').value;
+      const suspicious = [];
+      trans.forEach((t, i) => {
+        if (!t || !orig[i]) return;
+        const m = detectSourceChars(t.text || '', srcLang);
+        if (m) suspicious.push({ idx: i, orig_s: orig[i], chars: m });
+      });
+      if (!suspicious.length) { setStatus('✅ Không tìm thấy ký tự nguồn còn sót!', 'ok'); return; }
+      
+      const LINES_PER_CALL = 20;
+      const PARALLEL = 10;
+      setStatus(`🔍 ${suspicious.length} dòng — TURBO ${LINES_PER_CALL}×${PARALLEL}...`, 'warn');
+      log(`[Scan] ${suspicious.length} dòng — turbo batch`);
+      
+      let url = G('apiUrl').value.trim(), mdl = G('mdl').value.trim();
+      const allKeys = getKeys();
+      const key = allKeys[0] || '';
+      if (url === '/translate' || url.endsWith('/translate')) { url = '/retry'; }
+      const srcTxt = G('src').options[G('src').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const bp = G('promptBase').value.trim(), cust = G('custom').value.trim();
+      const base = bp + (cust ? '\n\nYêu cầu thêm:\n' + cust : '') + '\n\nNgôn ngữ gốc: ' + srcTxt + '\nNgôn ngữ đích: ' + tgtTxt;
+      
+      // Split into batches
+      const batches = [];
+      for (let i = 0; i < suspicious.length; i += LINES_PER_CALL) {
+        batches.push(suspicious.slice(i, i + LINES_PER_CALL));
+      }
+      
+      async function fixBatch(batchItems, batchKey) {
+        try {
+          const tgtName = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+          const numbered = batchItems.map((p, i) => `[${i+1}] ${p.orig_s.text}`).join('\n');
+          const sysPrompt = base + `\n\nDịch lại TOÀN BỘ ${batchItems.length} dòng sau SANG ${tgtName}. KHÔNG giữ ký tự gốc, PHẢI hoàn toàn bằng ${tgtName}. Output: EXACT [N] format:`;
+          const body = {
+            model: mdl,
+            messages: [{ role: 'system', content: sysPrompt }, { role: 'user', content: numbered }],
+            temperature: 0.1, max_tokens: 2048
+          };
+          const hdrs = { 'Content-Type': 'application/json' };
+          if (batchKey) hdrs['Authorization'] = 'Bearer ' + batchKey;
+          const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+          if (!res.ok) { log(`[Scan] batch lỗi ${res.status}`); return 0; }
+          const data = await res.json();
+          const content = (data.choices?.[0]?.message?.content || '').trim();
+          
+          let fixed = 0;
+          for (const line of content.split('\n')) {
+            const m = line.match(/^\[(\d+)\]\s*(.+)/);
+            if (!m) continue;
+            const num = parseInt(m[1]) - 1;
+            const aiTxt = m[2].trim();
+            if (num < 0 || num >= batchItems.length) continue;
+            const p = batchItems[num];
+            if (aiTxt && !detectSourceChars(aiTxt, srcLang)) {
+              if (trans[p.idx]) trans[p.idx].text = aiTxt;
+              fixed++;
+            }
+          }
+          return fixed;
+        } catch(e) { log(`[Scan] batch error: ${e.message}`); return 0; }
+      }
+      
+      const PARALLEL_SCAN = Math.min(10, Math.max(3, allKeys.length * 3));
+      let totalFixed = 0;
+      for (let i = 0; i < batches.length; i += PARALLEL_SCAN) {
+        const wave = batches.slice(i, i + PARALLEL_SCAN);
+        setStatus(`🔧 Scan turbo: ${i+1}-${i+wave.length}/${batches.length} batch...`, 'warn');
+        const results = await Promise.allSettled(wave.map((b, wi) => fixBatch(b, allKeys[wi % allKeys.length] || key)));
+        for (const r of results) {
+          if (r.status === 'fulfilled') totalFixed += r.value;
+        }
+      }
+      const left = suspicious.length - totalFixed;
+      setStatus('✅ Quét xong: ' + totalFixed + '/' + suspicious.length + (left ? ' — ' + left + ' cần sửa tay' : ''), left ? 'warn' : 'ok');
+      renderSubs();
+    }
+
+    // ── Auto-save timer ID ──
+    let autoSaveTimer = null;
+    
+    async function startTranslation() {
+      if (!orig.length || busy || pipelineBusy) return;
+      
+      // Check if there are existing translations (restored from cache)
+      const existingCount = trans.filter(t => t.text && t.text.trim() && t.text.trim() !== '.').length;
+      if (existingCount > 0 && existingCount < orig.length) {
+        const untranslated = orig.length - existingCount;
+        const resume = await new Promise(resolve => {
+          const dlg = document.createElement('div');
+          dlg.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)';
+          dlg.innerHTML = `<div style="background:var(--card);padding:24px;border-radius:12px;max-width:400px;text-align:center">
+            <div style="font-size:16px;font-weight:700;margin-bottom:12px">📄 File đang dịch dở</div>
+            <div style="color:var(--text2);margin-bottom:16px;font-size:13px">
+              Đã dịch: <b style="color:var(--green)">${existingCount}</b> / ${orig.length} dòng<br>
+              Còn lại: <b style="color:var(--yellow)">${untranslated}</b> dòng chưa dịch
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-p" id="_resumeYes" style="padding:8px 20px">▶ Tiếp tục dịch</button>
+              <button class="btn btn-g" id="_resumeNo" style="padding:8px 20px">🔄 Dịch lại từ đầu</button>
+              <button class="btn btn-d btn-sm" id="_resumeClose" style="padding:8px 16px">❌ Đóng</button>
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:8px">Nhấn ESC để đóng</div>
+          </div>`;
+          document.body.appendChild(dlg);
+          const cleanup = () => { dlg.remove(); document.removeEventListener('keydown', onEsc); };
+          const onEsc = (e) => { if (e.key === 'Escape') { cleanup(); resolve(null); } };
+          document.addEventListener('keydown', onEsc);
+          dlg.querySelector('#_resumeYes').addEventListener('click', () => { cleanup(); resolve(true); });
+          dlg.querySelector('#_resumeNo').addEventListener('click', () => { cleanup(); resolve(false); });
+          dlg.querySelector('#_resumeClose').addEventListener('click', () => { cleanup(); resolve(null); });
+        });
+        if (resume === null) return;
+        
+        if (resume) {
+          // Continue: keep existing translations, only re-translate empty ones
+          log(`[Resume] Tiếp tục dịch ${untranslated} dòng còn lại...`);
+        } else {
+          // Start fresh: clear all translations
+          trans = orig.map(s => ({ ...s, text: '' }));
+          window._origIdMap = null;
+          renderSubs();
+          log(`[Reset] Dịch lại toàn bộ ${orig.length} dòng`);
+        }
+      } else {
+        trans = orig.map(s => ({ ...s, text: '' }));
+        window._origIdMap = null;
+        renderSubs();
+      }
+      
+      // Character analysis reminder
+      const charCtx = (G('charContext')?.value || '').trim();
+      if (!charCtx && existingCount === 0) {
+        const action = await new Promise(resolve => {
+          const dlg = document.createElement('div');
+          dlg.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7)';
+          dlg.innerHTML = `<div style="background:var(--card);padding:24px;border-radius:12px;max-width:420px;text-align:center">
+            <div style="font-size:16px;font-weight:700;margin-bottom:12px">🎭 Chưa phân tích nhân vật</div>
+            <div style="color:var(--text2);margin-bottom:16px;font-size:13px">
+              Phân tích nhân vật & xưng hô giúp AI dịch <b>chính xác</b> hơn:<br>
+              • Tên nhân vật phiên âm đúng<br>
+              • Xưng hô phù hợp vai vế<br>
+              • Thuật ngữ nhất quán
+            </div>
+            <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-p" id="_charAnalyze" style="padding:8px 16px">🔍 Phân tích trước</button>
+              <button class="btn btn-g" id="_charSkip" style="padding:8px 16px">⏩ Bỏ qua, dịch luôn</button>
+              <button class="btn btn-d btn-sm" id="_charCancel" style="padding:8px 16px">❌ Hủy</button>
+            </div>
+          </div>`;
+          document.body.appendChild(dlg);
+          dlg.querySelector('#_charAnalyze').addEventListener('click', () => { dlg.remove(); resolve('analyze'); });
+          dlg.querySelector('#_charSkip').addEventListener('click', () => { dlg.remove(); resolve('skip'); });
+          dlg.querySelector('#_charCancel').addEventListener('click', () => { dlg.remove(); resolve('cancel'); });
+        });
+        if (action === 'analyze') {
+          analyzeCharacters();
+          return;
+        }
+        if (action === 'cancel') return;
+      }
+      
+      busy = true; stop = false;
+      // Immediate visual feedback
+      setBadge('work', 'ĐANG KẾT NỐI...');
+      setStatus('⏳ Đang kết nối server...', 'ok');
+      G('btnGo').disabled = true;
+      
+      // Start auto-save every 30s
+      if (autoSaveTimer) clearInterval(autoSaveTimer);
+      autoSaveTimer = setInterval(() => {
+        if (busy && orig.length && trans.length) {
+          saveHistory();
+          log('[AutoSave] Đã lưu cache tự động');
+        }
+      }, 30000);
+      
+      // Backend Mode: WebSocket (ưu tiên, nhanh nhất)
+      if (G('backendMode') && G('backendMode').checked) {
+        await startBackendTranslation();
+      } else if (activeProv === 'python_backend') {
+        // Auto-enable Backend Mode khi chọn python_backend
+        G('backendMode').checked = true;
+        G('backendUrl').style.display = '';
+        await startBackendTranslation();
+      } else {
+        await doTrans(0);
+      }
+      
+      // Clear auto-save when done
+      if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
+    }
+
+    async function doTransPythonBackend() {
+      const tgtVal = G('tgt').value;
+      const url = G('apiUrl').value.trim() || '/translate';
+
+      setBadge('work', 'ĐANG DỊCH...');
+      G('btnGo').disabled = true; G('btnStop').style.display = ''; G('progArea').style.display = 'none';
+      document.title = '⏳ Đang kết nối Backend...';
+      setStatus('Đang tải file lên Local Backend và chờ dịch (vui lòng đợi)...');
+
+      try {
+        const srtContent = buildSRT(orig);
+        const blob = new Blob([srtContent], { type: 'text/plain' });
+
+        // Build tagged keys from mixed provider UI (groq:model:key, gemini:model:key)
+        const taggedKeys = getMixedTaggedKeys();
+        const keysStr = taggedKeys.length > 0 ? taggedKeys.join('\n') : G('key').value.trim();
+
+        const formData = new FormData();
+        formData.append('file', blob, fileName + '.srt');
+        formData.append('target_lang', tgtVal);
+        formData.append('api_keys', keysStr);
+        formData.append('batch_size', G('batch').value || '30');
+        formData.append('model_name', G('mdl').value || 'llama-3.3-70b-versatile');
+
+        const keyCount = taggedKeys.length || keysStr.split('\n').filter(k => k.trim()).length;
+        log(`[Backend] Gửi file tới ${url} (${tgtVal}) — ${keyCount} keys (mixed provider)`);
+
+        const res = await fetch(url, { method: 'POST', body: formData });
+        if (!res.ok) {
+          const errTxt = await res.text();
+          throw new Error(`Lỗi ${res.status}: ${errTxt}`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (!stop) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          let parts = buffer.split('\n\n');
+          buffer = parts.pop(); // Giữ lại phần chưa hoàn thành
+
+          for (const p of parts) {
+            if (p.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(p.substring(6));
+                if (data.type === 'chunk' || data.type === 'cleanup_chunk') {
+                  // Cập nhật mảng trans
+                  data.data.forEach(chunkItem => {
+                    // So sánh id: cả hai phải cùng kiểu (number == number)
+                    const chunkId = Number(chunkItem.id);
+                    const idx = trans.findIndex(s => Number(s.id) === chunkId);
+                    if (idx >= 0) {
+                      trans[idx].text = chunkItem.text;
+                    }
+                  });
+                  renderSubs(); // Hiển thị lập tức
+
+                  // Cập nhật status tuỳ loại
+                  const doneCount = trans.filter(s => s.text && s.text.trim()).length;
+                  if (data.type === 'cleanup_chunk') {
+                    setStatus(`🔄 Backend: Đang dọn dẹp ký tự thừa (cập nhật dòng ${data.data[0].id})`, 'warn');
+                  } else {
+                    setStatus(`⚡ Backend: Đã nhận ${doneCount}/${orig.length} dòng (real-time)`, 'ok');
+                  }
+                } else if (data.type === 'done') {
+                  document.title = '✅ Dịch xong!';
+                  setStatus('✅ Hoàn tất tải kết quả từ Backend!', 'ok');
+                  setBadge('done', 'HOÀN TẤT');
+                  G('secVal').style.display = ''; G('secDl').style.display = '';
+                  saveHistory();
+                } else if (data.type === 'health_check') {
+                  // API Health Check - hiển thị trong log
+                  const h = data.data;
+                  const mins = (h.elapsed_sec / 60).toFixed(1);
+                  let report = `\n━━━ 📊 API HEALTH CHECK (${mins} phút) ━━━\n`;
+                  report += `📈 Tổng: ${h.total_requests} requests · ${h.total_tokens.toLocaleString()} tokens\n`;
+                  h.providers.forEach(p => {
+                    const bar = p.requests_429 > 0 ? '⚠️' : '✅';
+                    report += `${bar} ${p.provider}: ${p.keys} keys · ${p.requests_ok} OK · ${p.requests_fail} fail · ${p.requests_429} 429s · ${p.tokens_used.toLocaleString()} tok · ${p.actual_rpm} RPM (limit: ${p.rpm_limit_per_key}/key)\n`;
+                  });
+                  // Key details - compact
+                  const activeKeys = h.keys.filter(k => k.ok > 0 || k.fail > 0 || k.r429 > 0);
+                  if (activeKeys.length > 0) {
+                    report += `🔑 Keys: `;
+                    report += activeKeys.map(k => {
+                      const icon = k.status === 'active' ? '🟢' : k.status.includes('sleep') ? '💤' : '🔴';
+                      return `${icon}${k.key_masked}(${k.ok}ok/${k.r429}×429)`;
+                    }).join(' · ');
+                  }
+                  report += '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+                  log(report);
+                } else if (data.type === 'error') {
+                  setStatus(`🔴 Lỗi Backend: ${data.message}`, 'err');
+                }
+              } catch (e) {
+                console.log("JSON Parse Error:", e, "Raw string:", p);
+              }
+            }
+          }
+        }
+
+        if (stop) {
+          setStatus('Đã gửi yêu cầu dừng.', 'warn');
+          return;
+        }
+
+      } catch (err) {
+        log(`[❌ Backend Lỗi]: ${err.message}`);
+        setStatus(`🔴 Lỗi Backend: ${err.message}`, 'err');
+        setBadge('err', 'LỖI');
+        document.title = '🔴 Lỗi Dịch';
+      } finally {
+        busy = false; G('btnGo').disabled = false; G('btnStop').style.display = 'none';
+      }
+    }
+
+    async function continueTranslation() {
+      if (!orig.length || busy) return;
+      const si = trans.findIndex(s => !s.text || s.text.trim() === '');
+      if (si < 0) { setStatus('Đã dịch hết!', 'ok'); return; }
+      busy = true; stop = false; await doTrans(si);
+    }
+    function abort() {
+      stop = true;
+      if (wsConn && wsConn.readyState === WebSocket.OPEN) {
+        wsConn.send(JSON.stringify({ action: 'cancel' }));
+        wsConn.close();
+        wsConn = null;
+        busy = false;
+        setBadge('err', 'ĐÃ HỦY');
+        setStatus('Đã hủy dịch.', 'warn');
+        G('btnStop').style.display = 'none';
+        G('btnGo').disabled = false;
+      } else {
+        setStatus('Đang dừng...', 'warn');
+      }
+    }
+
+    async function doTrans(si) {
+      const url = G('apiUrl').value.trim(), mdl = G('mdl').value.trim();
+      const srcTxt = G('src').options[G('src').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const basePrompt = G('promptBase').value.trim();
+      const custom = G('custom').value.trim();
+      const batchSz = parseInt(G('batch').value) || 250;
+      const fullPrompt = basePrompt + (custom ? '\n\nYêu cầu thêm từ người dùng:\n' + custom : '')
+        + '\n\nNgôn ngữ gốc: ' + srcTxt + '\nNgôn ngữ đích: ' + tgtTxt
+        + '\n\n⚠️ BẮT BUỘC: Dịch TOÀN BỘ nội dung sang ' + tgtTxt + '. MỌI dòng đầu ra PHẢI hoàn toàn bằng ' + tgtTxt + '. KHÔNG được để lại bất kỳ ký tự ' + srcTxt + ' nào. Nếu không dịch được, hãy phiên âm hoặc giữ nguyên tên riêng nhưng phần còn lại PHẢI bằng ' + tgtTxt + '.'
+        + getCharContextBlock();
+
+      const keys = getKeys();
+      const keyCount = keys.length || 1;
+      keyIdx = 0;
+      failedBatches = [];
+
+      setBadge('work', 'ĐANG DỊCH...');
+      G('btnGo').disabled = true; G('btnStop').style.display = ''; G('progArea').style.display = '';
+      G('etaDash').style.display = '';
+      document.title = '⏳ Đang dịch...';
+      const total = orig.length;
+      const totalBatches = Math.ceil((total - si) / batchSz);
+      let batchesDone = 0;
+      const transStartTime = Date.now();
+      try {
+        // Build all batch descriptors
+        const allBatches = [];
+        for (let i = si; i < total; i += batchSz) {
+          allBatches.push({ offset: i, batch: orig.slice(i, Math.min(i + batchSz, total)) });
+        }
+        const PARALLEL = Math.min(10, Math.max(1, keys.length || 2));
+        const TOKEN_CAP = getMaxTokensCap(mdl);
+        log(`⚡ Parallel: ${PARALLEL}, Batches: ${allBatches.length}, Batch size: ${batchSz}, Max tokens: ${TOKEN_CAP}, Keys: ${keys.length}`);
+
+        // Process one batch with text-only [N] format + partial-success
+        async function processBatch(bDesc, keyToUse) {
+          const { offset } = bDesc;
+          let { batch } = bDesc;
+          const batchText = batch.map(s => `[${s.id}] ${s.text}`).join('\n');
+          const body = { model: mdl, messages: [{ role: 'system', content: fullPrompt }, { role: 'user', content: batchText }], temperature: 0.3, max_tokens: Math.min(TOKEN_CAP, Math.max(2048, batch.length * 120)) };
+          const hdrs = { 'Content-Type': 'application/json' };
+          if (keyToUse) hdrs['Authorization'] = 'Bearer ' + keyToUse;
+          for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+              if (attempt > 1) await new Promise(r => setTimeout(r, attempt * 3000));
+              const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+              if (res.status === 404) {
+                log(`[Batch ${offset+1}–${offset+batch.length}] ❌ 404: Model "${mdl}" không tồn tại!`);
+                failedBatches.push({ offset, size: batch.length }); return false;
+              }
+              if (res.status === 429 || res.status === 503) { if (attempt === 3) throw new Error('Rate limit'); continue; }
+              if (!res.ok) throw new Error(`API ${res.status}`);
+              const data = await res.json();
+              const aiTxt = data.choices?.[0]?.message?.content || '';
+              
+              let savedCount = 0;
+              const lines = aiTxt.split('\n');
+              for (const line of lines) {
+                const m = line.match(/^\[(\d+)\]\s*(.*)/);
+                if (m) {
+                  const id = parseInt(m[1]);
+                  const text = m[2].trim();
+                  if (text) {
+                    const idx = trans.findIndex(s => s.id === id);
+                    if (idx >= 0) { trans[idx].text = text; trans[idx].start = orig[idx].start; trans[idx].end = orig[idx].end; savedCount++; }
+                  }
+                }
+              }
+              
+              if (savedCount === 0) {
+                const cleanLines = aiTxt.split('\n').map(l => l.trim()).filter(l => l && !l.match(/^[\d]+$/) && !l.includes('-->'));
+                batch.forEach((os, bi) => {
+                  if (!cleanLines[bi]) return;
+                  const idx = trans.findIndex(s => s.id === os.id);
+                  if (idx >= 0) { trans[idx].text = cleanLines[bi].replace(/^\[\d+\]\s*/, ''); trans[idx].start = orig[idx].start; trans[idx].end = orig[idx].end; savedCount++; }
+                });
+              }
+              
+              if (savedCount < batch.length * 0.8 && attempt < 3) {
+                log(`[Batch ${offset+1}–${offset+batch.length}] ⚠️ ${savedCount}/${batch.length} dòng → retry missing`);
+                const missingBatch = batch.filter(b => {
+                  const t = trans.find(s => s.id === b.id);
+                  return !t?.text || t.text.trim() === '' || t.text === b.text;
+                });
+                if (missingBatch.length > 0 && missingBatch.length < batch.length) {
+                  bDesc.batch = missingBatch;
+                  batch = missingBatch;
+                  body.messages[1].content = missingBatch.map(s => `[${s.id}] ${s.text}`).join('\n');
+                  body.max_tokens = Math.min(TOKEN_CAP, Math.max(2048, missingBatch.length * 120));
+                  log(`[Batch ${offset+1}–${offset+batch.length}] 🔄 Retry ${missingBatch.length} dòng thiếu...`);
+                }
+                continue;
+              }
+              
+              log(`[Batch ${offset+1}–${offset+batch.length}] ✅ ${aiTxt.length} chars, ${savedCount} lines`);
+              return true;
+            } catch(e) {
+              log(`[Batch ${offset+1}–${offset+batch.length}] ❌ Lần ${attempt}/3: ${e.message}`);
+              if (attempt === 3) { failedBatches.push({ offset, size: batch.length }); return false; }
+            }
+          }
+        }
+
+        // Wave loop
+        for (let wi = 0; wi < allBatches.length && !stop; wi += PARALLEL) {
+          const wave = allBatches.slice(wi, wi + PARALLEL);
+          const waveNum = Math.floor(wi / PARALLEL) + 1, totalWaves = Math.ceil(allBatches.length / PARALLEL);
+          log(`[Wave ${waveNum}/${totalWaves}] ${wave.length} batch ⚡`);
+          setStatus(`⚡ Wave ${waveNum}/${totalWaves}: ${wave.length} batch song song...`, 'ok');
+          await Promise.allSettled(wave.map((bd, i) => processBatch(bd, keys[i % Math.max(keys.length, 1)] || '')));
+          batchesDone += wave.length;
+          const done = Math.min(batchesDone * batchSz + si, total), pct = Math.round(batchesDone / totalBatches * 100);
+          G('progFill').style.width = pct + '%'; G('progLbl').textContent = `${done}/${total}`; G('progPct').textContent = pct + '%';
+          document.title = `⏳ ${pct}%`;
+          renderSubs();
+          const elSec = (Date.now() - transStartTime) / 1000;
+          updateEtaDash({ elapsed_sec: elSec, eta_sec: ((totalWaves - waveNum) / waveNum) * elSec, speed: (batchesDone / (elSec / 60)).toFixed(1), done: batchesDone, total: totalBatches, percent: pct });
+          if (wi + PARALLEL < allBatches.length && !stop) await new Promise(r => setTimeout(r, Math.max(500, jitter() * 300)));
+        }
+
+
+
+
+      } catch (err) {
+        log('❌ LỖI nghiêm trọng: ' + err.message);
+        setBadge('err', 'LỖI'); setStatus('Lỗi: ' + err.message, 'err'); document.title = '❌ Lỗi';
+        saveHistory();
+      }
+      busy = false; G('btnGo').disabled = false; G('btnStop').style.display = 'none';
+      G('sright').textContent = '';
+      const left = trans.filter(s => !s.text || s.text.trim() === '').length;
+      const hasFailed = failedBatches.length > 0;
+
+      if (hasFailed && !stop) {
+        log(`⚠️ ${failedBatches.length} batch lỗi — tự động retry...`);
+        setStatus(`🔁 Auto-retry ${failedBatches.length} batch lỗi...`, 'warn');
+        setBadge('work', 'AUTO RETRY...');
+        saveHistory();
+        setTimeout(() => retryFailedBatches(), 1000);
+      } else if (hasFailed && stop) {
+        G('btnRetryFailed').style.display = '';
+        G('btnRetryFailed').textContent = `🔁 Dịch lại ${failedBatches.length} đoạn lỗi`;
+        log(`⚠️ ${failedBatches.length} batch lỗi (user dừng). Nhấn "🔁" để thử lại.`);
+        setStatus(`⚠️ Xong nhưng có ${failedBatches.length} batch lỗi (${left} dòng chưa dịch). Nhấn 🔁 để thử lại.`, 'warn');
+        setBadge('work', `${failedBatches.length} BATCH LỖI`);
+        G('secDl').style.display = ''; G('secVal').style.display = ''; validate(); saveHistory();
+      } else if (left > 0 && !stop) {
+        G('btnMore').style.display = ''; setBadge('work', `CÒN ${left} DÒNG`);
+        setStatus(`Còn ${left}/${total} dòng chưa dịch. Nhấn "Dịch tiếp".`, 'warn');
+        saveHistory();
+      } else if (left === 0) {
+        setBadge('done', 'HOÀN TẤT'); setStatus(`Dịch xong ${total} phụ đề! ✓`, 'ok');
+        document.title = '✅ Hoàn tất'; G('btnMore').style.display = 'none';
+        G('secDl').style.display = ''; G('secVal').style.display = ''; validate(); saveHistory();
+        const unchanged = trans.filter((t, i) => t.text && orig[i] && t.text.trim() === orig[i].text.trim() && orig[i].text.trim() !== '');
+        if (unchanged.length > 0) {
+          log(`[Auto-QA] ${unchanged.length} dòng giống gốc — tự động quét ký tự nguồn...`);
+          setTimeout(() => scanMixedChars(), 500);
+        }
+      } else { setBadge('err', 'ĐÃ DỪNG'); saveHistory(); }
+      saveSettings();
+    }
+
+    // ── RETRY FAILED BATCHES (Parallel + Key Rotation + 404 Auto-Stop) ──
+    async function retryFailedBatches() {
+      if (busy || !failedBatches.length) return;
+      busy = true; stop = false;
+      G('btnRetryFailed').style.display = 'none';
+      G('btnStop').style.display = '';
+      G('btnViewLog').style.display = '';
+      setBadge('work', 'ĐANG RETRY...');
+
+      const url = G('apiUrl').value.trim(), mdl = G('mdl').value.trim();
+      const srcTxt = G('src').options[G('src').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+      const basePrompt = G('promptBase').value.trim(), custom = G('custom').value.trim();
+      const fullPrompt = basePrompt + (custom ? '\n\nYêu cầu thêm:\n' + custom : '')
+        + `\n\nNgôn ngữ gốc: ${srcTxt}\nNgôn ngữ đích: ${tgtTxt}`
+        + getCharContextBlock();
+
+      const keys = getKeys();
+      const toRetry = [...failedBatches];
+      failedBatches = [];
+      let fatalError = false;
+
+      const PARALLEL = Math.min(10, Math.max(1, keys.length || 2));
+      log(`🔁 Retry: ${toRetry.length} batch, parallel ${PARALLEL}, ${keys.length} keys`);
+
+      async function retryOne(bDesc, keyToUse) {
+        if (fatalError || stop) return false;
+        const { offset, size } = bDesc;
+        const batch = orig.slice(offset, offset + size);
+        const batchText = batch.map(s => `[${s.id}] ${s.text}`).join('\n');
+        const body = { model: mdl, messages: [{ role: 'system', content: fullPrompt }, { role: 'user', content: batchText }], temperature: 0.3, max_tokens: Math.min(getMaxTokensCap(mdl), Math.max(2048, batch.length * 120)) };
+        const batchNum = `${offset + 1}–${offset + size}`;
+
+        for (let attempt = 1; attempt <= 3 && !stop && !fatalError; attempt++) {
+          try {
+            if (attempt > 1) await new Promise(r => setTimeout(r, attempt * 3000));
+            const hdrs = { 'Content-Type': 'application/json' };
+            if (keyToUse) hdrs['Authorization'] = 'Bearer ' + keyToUse;
+            const res = await fetch(url, { method: 'POST', headers: hdrs, body: JSON.stringify(body) });
+
+            if (res.status === 404) {
+              const et = await res.text();
+              log(`[Retry] ❌ FATAL: Model "${mdl}" không tồn tại (404). Dừng retry.`);
+              log(`[Retry] Chi tiết: ${et.slice(0, 150)}`);
+              fatalError = true;
+              failedBatches.push({ offset, size });
+              switchTab('log', document.querySelectorAll('.tab')[3]);
+              return false;
+            }
+            if (res.status === 429 || res.status === 503 || res.status === 528) {
+              log(`[Retry] Batch ${batchNum} lần ${attempt}/3: Rate limit ${res.status}`);
+              if (attempt === 3) { failedBatches.push({ offset, size }); return false; }
+              continue;
+            }
+            if (!res.ok) { const et = await res.text(); throw new Error(`API ${res.status}: ${et.slice(0, 100)}`); }
+            const data = await res.json();
+            const aiTxt = (data.choices?.[0]?.message?.content || '').trim();
+            let savedCount = 0;
+            for (const line of aiTxt.split('\n')) {
+              const m = line.match(/^\[(\d+)\]\s*(.*)/);
+              if (m) {
+                const id = parseInt(m[1]), text = m[2].trim();
+                if (text) {
+                  const idx = trans.findIndex(s => s.id === id);
+                  if (idx >= 0) { trans[idx].text = text; trans[idx].start = orig[idx].start; trans[idx].end = orig[idx].end; savedCount++; }
+                }
+              }
+            }
+            if (savedCount === 0) {
+              const cleanLines = aiTxt.split('\n').map(l => l.trim()).filter(l => l && !l.match(/^[\d]+$/) && !l.includes('-->'));
+              batch.forEach((s, bi) => { if (!cleanLines[bi]) return; const idx = trans.findIndex(t => t.id === s.id); if (idx >= 0) { trans[idx].text = cleanLines[bi].replace(/^\[\d+\]\s*/, ''); trans[idx].start = orig[idx].start; trans[idx].end = orig[idx].end; savedCount++; } });
+            }
+            log(`[Retry] Batch ${batchNum} ✅ ${aiTxt.length} chars, ${savedCount} lines`);
+            return true;
+          } catch (e) {
+            log(`[Retry] Batch ${batchNum} lần ${attempt}/3: ${e.message}`);
+            if (attempt === 3) failedBatches.push({ offset, size });
+          }
+        }
+        return false;
+      }
+
+      const retryStart = Date.now();
+      for (let wi = 0; wi < toRetry.length && !stop && !fatalError; wi += PARALLEL) {
+        const wave = toRetry.slice(wi, wi + PARALLEL);
+        const waveNum = Math.floor(wi / PARALLEL) + 1;
+        const totalWaves = Math.ceil(toRetry.length / PARALLEL);
+        log(`[Retry Wave ${waveNum}/${totalWaves}] ${wave.length} batch ⚡`);
+        setStatus(`🔁 Retry Wave ${waveNum}/${totalWaves}: ${wave.length} batch song song...`, 'warn');
+
+        await Promise.allSettled(wave.map((bd, i) => retryOne(bd, keys[i % Math.max(keys.length, 1)] || '')));
+        renderSubs();
+
+        if (wi + PARALLEL < toRetry.length && !stop && !fatalError) {
+          await new Promise(r => setTimeout(r, 1500));
+        }
+      }
+
+      const retryDur = ((Date.now() - retryStart) / 1000).toFixed(1);
+      busy = false; G('btnStop').style.display = 'none'; G('btnViewLog').style.display = 'none';
+      const left2 = trans.filter(s => !s.text || !s.text.trim()).length;
+
+      if (fatalError) {
+        G('btnRetryFailed').style.display = '';
+        G('btnRetryFailed').textContent = `🔁 Dịch lại ${failedBatches.length} đoạn lỗi`;
+        setStatus(`❌ Model "${mdl}" không tồn tại! Đổi model rồi retry lại.`, 'err');
+        setBadge('err', 'MODEL LỖI');
+        switchTab('log', document.querySelectorAll('.tab')[3]);
+      } else if (failedBatches.length > 0) {
+        G('btnRetryFailed').style.display = '';
+        G('btnRetryFailed').textContent = `🔁 Dịch lại ${failedBatches.length} đoạn lỗi`;
+        setStatus(`⚠️ Còn ${failedBatches.length} batch lỗi (${left2} dòng). Retry mất ${retryDur}s`, 'warn');
+      } else {
+        log(`[Retry] ✅ Hoàn tất! ${retryDur}s`);
+        setStatus(`✅ Retry xong trong ${retryDur}s! Còn ${left2} dòng chưa dịch.`, left2 === 0 ? 'ok' : 'warn');
+        if (left2 === 0) { setBadge('done', 'HOÀN TẤT'); document.title = '✅ Hoàn tất'; }
+      }
+      validate(); saveHistory();
+    }
+
+
+
+    // ── VALIDATE ──
+    let filterErrorsMode = false;
+    function validate() {
+      valErrs = []; let ec = 0, wc = 0, unchanged = 0;
+      orig.forEach((o, i) => {
+        const t = trans[i];
+        if (!t?.text || t.text.trim() === '' || t.text.trim() === '.') { valErrs.push({ id: o.id, type: 'error' }); ec++; return; }
+        if (t.text.trim() === o.text.trim() && o.text.trim() !== '') { valErrs.push({ id: o.id, type: 'warning' }); unchanged++; wc++; }
+      });
+      const ok = orig.length - ec - unchanged;
+      let html = '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13px">';
+      html += `<span style="color:var(--green)">✅ ${ok} dòng OK</span>`;
+      if (ec > 0) html += `<span style="color:var(--red);cursor:pointer" onclick="toggleFilterErrors()" title="Bấm để lọc">🔴 ${ec} chưa dịch</span>`;
+      if (unchanged > 0) html += `<span style="color:var(--yellow);cursor:pointer" onclick="toggleFilterErrors()" title="Bấm để lọc">⚠️ ${unchanged} giống gốc</span>`;
+      if (ec === 0 && unchanged === 0) html += '<span style="color:var(--green)">— Hoàn hảo!</span>';
+      html += '</div>';
+      G('valRes').innerHTML = html;
+      log(`[QA] ${ok} OK | ${ec} chưa dịch | ${unchanged} giống gốc`);
+    }
+    function toggleFilterErrors() {
+      filterErrorsMode = !filterErrorsMode;
+      const btn = G('btnFilterErr');
+      if (filterErrorsMode) {
+        const errIds = new Set(valErrs.map(e => e.id));
+        document.querySelectorAll('.sub-row').forEach(row => {
+          const id = parseInt(row.id?.replace('row-', ''));
+          row.style.display = errIds.has(id) ? '' : 'none';
+        });
+        if (btn) { btn.textContent = '📍 Đang lọc — Bấm để xem tất cả'; btn.style.background = 'var(--glow)'; btn.style.borderColor = 'var(--accent)'; }
+        switchTab('subs', document.querySelector('.tab'));
+        log(`[Filter] Đang hiện ${errIds.size} dòng lỗi/chưa dịch`);
+      } else {
+        document.querySelectorAll('.sub-row').forEach(row => row.style.display = '');
+        if (btn) { btn.textContent = '📍 Chỉ xem dòng chưa dịch / lỗi'; btn.style.background = ''; btn.style.borderColor = ''; }
+        log(`[Filter] Hiện tất cả dòng`);
+      }
+    }
+    async function autoFix() {
+      trans.forEach((t, i) => { t.start = orig[i].start; t.end = orig[i].end; });
+      const empty = trans.filter(s => !s.text || s.text.trim() === '');
+      if (empty.length > 0) { busy = true; await doTrans(orig.findIndex(s => s.id === empty[0].id)); return; }
+      validate(); renderSubs(); setStatus('Đã đồng bộ timestamp ✓', 'ok');
+    }
+
+    // ── DOWNLOAD ──
+    function dlSRT() {
+      // Strict validation: only export lines with valid timestamps from orig
+      const out = [];
+      let skipped = 0;
+      for (let i = 0; i < orig.length; i++) {
+        const o = orig[i];
+        if (!o || !o.start || !o.end || !o.id) { skipped++; continue; }
+        if (o.start.length < 8 || o.end.length < 8) { skipped++; continue; }
+        const text = trans[i]?.text || '.';
+        out.push({ id: o.id, start: o.start, end: o.end, text });
+      }
+      if (skipped > 0) log(`[Export] ⚠️ Bỏ qua ${skipped} dòng không hợp lệ`);
+      log(`[Export] Xuất ${out.length} dòng SRT`);
+      const m = G('mdl').value.replace(/[^a-zA-Z0-9.-]/g, '');
+      dlBlob(buildSRT(out), `${fileName}(${G('tgt').value})(${m}).srt`, 'text/plain;charset=utf-8');
+    }
+    function dlLog() { dlBlob(logs.join('\n\n---\n\n'), `${fileName}_log.txt`, 'text/plain;charset=utf-8'); }
+    function dlBlob(c, n, t) {
+      const b = new Blob([c], { type: t }), u = URL.createObjectURL(b), a = document.createElement('a');
+      a.href = u; a.download = n;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(u);
+    }
+    function dlTXT() {
+      if (!trans.length) return;
+      // xuất từng dòng dịch, nguyên âm, cách nhau 1 dòng trống — thân thiện với TTS
+      const lines = trans.map(s => (s.text || '').trim()).filter(t => t);
+      dlBlob(lines.join('\n\n') + '\n', (fileName || 'translated') + '.txt', 'text/plain;charset=utf-8');
+      setStatus('Xuất .TXT thành công ✓', 'ok');
+    }
+
+    // ── UI HELPERS ──
+    function switchTab(name, el) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('act'));
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('act'));
+      el.classList.add('act'); G('pane-' + name).classList.add('act');
+    }
+    function log(msg) {
+      const now = new Date();
+      const ts = `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]`;
+      const line = ts + ' ' + msg;
+      logs.push(line);
+      G('logEl').textContent = logs.join('\n');
+      G('cntLog').textContent = logs.length;
+      G('logEl').scrollTop = 9999;
+    }
+    function setBadge(type, txt) { const b = G('badge'); b.className = 'badge badge-' + (type === 'ok' ? 'done' : type === 'err' ? 'err' : type === 'warn' ? 'work' : type); b.textContent = txt; }
+    function setStatus(msg, type) { G('stxt').textContent = msg; G('sdot').style.background = type === 'ok' ? 'var(--green)' : type === 'err' ? 'var(--red)' : type === 'warn' ? 'var(--yellow)' : 'var(--green)'; }
+    function importPrompt() { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.txt'; inp.onchange = () => { const f = inp.files[0]; if (!f) return; const r = new FileReader(); r.onload = e => { G('promptBase').value = e.target.result; setStatus('Đã nhập prompt ✓', 'ok'); }; r.readAsText(f); }; inp.click(); }
+    // ── BACKEND MODE TOGGLE ──
+    G('backendMode').addEventListener('change', function() {
+      G('backendUrl').style.display = this.checked ? '' : 'none';
+    });
+    
+    // Auto-detect backend server on page load
+    (async function autoDetectBackend() {
+      const statusEl = G('backendStatus');
+      try {
+        const resp = await fetch('/health', { signal: AbortSignal.timeout(2000) });
+        if (resp.ok) {
+          G('backendMode').checked = true;
+          G('backendUrl').style.display = '';
+          if (statusEl) statusEl.innerHTML = '<span style="color:var(--green)">✅ Server online</span>';
+          log('[Backend] Auto-detected: server đang chạy');
+        } else {
+          G('backendMode').checked = false;
+          if (statusEl) statusEl.innerHTML = '<span style="color:var(--red)">❌ Server offline</span>';
+        }
+      } catch (e) {
+        G('backendMode').checked = false;
+        if (statusEl) statusEl.innerHTML = '<span style="color:var(--yellow)">⚠️ Chưa chạy server</span>';
+      }
+    })();
+
+    // ── ETA DASHBOARD ──
+    function fmtTime(sec) {
+      if (!sec || sec <= 0) return '—';
+      if (sec < 60) return Math.round(sec) + 's';
+      if (sec < 3600) return Math.floor(sec/60) + 'm' + Math.round(sec%60) + 's';
+      return Math.floor(sec/3600) + 'h' + Math.floor((sec%3600)/60) + 'm';
+    }
+    function updateEtaDash(p) {
+      if (!p) return;
+      G('etaDash').style.display = '';
+      G('etaElapsed').textContent = fmtTime(p.elapsed_sec);
+      G('etaRemain').textContent = fmtTime(p.eta_sec);
+      G('etaSpeed').textContent = p.speed || '—';
+      G('etaChunks').textContent = (p.done || 0) + '/' + (p.total || 0);
+      // Update main progress bar too
+      const pct = p.percent || 0;
+      G('progFill').style.width = pct + '%';
+      G('progPct').textContent = Math.round(pct) + '%';
+      G('progLbl').textContent = (p.done || 0) + ' / ' + (p.total || 0) + ' chunks';
+      document.title = '⏳ ' + Math.round(pct) + '% — ' + fmtTime(p.eta_sec) + ' còn lại';
+    }
+
+    // ── HEALTH PANEL RENDERER ──
+    function renderHealth(data) {
+      if (!data || !data.providers) return;
+      G('healthPanel').style.display = '';
+      // Compact: chỉ hiện số lượng alive/dead
+      let alive = 0, dead = 0, totalOk = 0;
+      if (data.keys) data.keys.forEach(k => { if (k.status === 'active') alive++; else dead++; });
+      data.providers.forEach(p => totalOk += (p.requests_ok || 0));
+      const colors = { Gemini: '#22c55e', Groq: '#6366f1', Openai: '#ef4444', Deepseek: '#eab308' };
+      let html = '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+      for (const p of data.providers) {
+        const c = colors[p.provider] || 'var(--text2)';
+        html += `<span style="padding:2px 6px;background:${c}20;border-radius:3px;font-size:11px"><b style="color:${c}">${p.provider}</b> ${p.requests_ok}✓ ${p.actual_rpm}rpm</span>`;
+      }
+      html += `<span style="font-size:11px;color:var(--text2)">🟢${alive} 🔴${dead} — ${totalOk} requests</span>`;
+      html += '</div>';
+      G('healthBody').innerHTML = html;
+    }
+
+    // ── WEBSOCKET BACKEND TRANSLATION ──
+    let wsConn = null;
+
+    async function startBackendTranslation() {
+      // Note: busy, stop, logs, trans already initialized by startTranslation()
+
+      const wsUrl = G('wsUrl').value.trim();
+      const healthUrl = wsUrl.replace('ws://', 'http://').replace('wss://', 'https://').replace('/ws/translate', '/health');
+      
+      // Thu thập API keys từ đúng nguồn (mixed hoặc single)
+      const taggedKeys = getMixedTaggedKeys();
+      let keys;
+      if (taggedKeys.length > 0) {
+        keys = taggedKeys; // Mixed provider: groq:model:key, gemini:model:key
+      } else {
+        keys = (G('key').value || '').trim().split('\n').filter(k => k.trim());
+      }
+      
+      if (keys.length === 0) {
+        log('[Backend] ❌ Chưa nhập API key!');
+        setStatus('❌ Vui lòng nhập API key trước khi dịch', 'err');
+        setBadge('err', 'THIẾU KEY');
+        busy = false; G('btnGo').disabled = false;
+        return;
+      }
+
+      // Preflight health check: kiểm tra server có đang chạy không
+      setBadge('work', 'KIỂM TRA SERVER...');
+      try {
+        const hc = await fetch(healthUrl, { signal: AbortSignal.timeout(3000) });
+        if (!hc.ok) throw new Error('Server trả về lỗi');
+        const hcData = await hc.json();
+        log('[Backend] Server OK: ' + JSON.stringify(hcData));
+      } catch (e) {
+        log('[Backend] ❌ Không kết nối được server: ' + e.message);
+        setStatus('❌ Server chưa chạy! Hãy chạy: python server.py', 'err');
+        setBadge('err', 'SERVER OFFLINE');
+        busy = false; G('btnGo').disabled = false;
+        return;
+      }
+
+      setBadge('work', 'KẾT NỐI BACKEND...');
+      G('btnGo').disabled = true; G('btnStop').style.display = ''; G('progArea').style.display = '';
+      G('etaDash').style.display = '';
+      log('[Backend] Kết nối WebSocket: ' + wsUrl);
+
+      try {
+        wsConn = new WebSocket(wsUrl);
+      } catch (e) {
+        log('[Backend] Lỗi kết nối: ' + e.message);
+        setStatus('❌ Không kết nối được tới backend', 'err');
+        busy = false; G('btnGo').disabled = false;
+        return;
+      }
+
+      wsConn.onopen = () => {
+        setBadge('work', 'ĐANG DỊCH (Backend)...');
+
+        // Khi resume: chỉ gửi các dòng chưa dịch
+        let subsToSend = orig;
+        const untranslatedCount = trans.filter(t => !t.text || !t.text.trim() || t.text.trim() === '.').length;
+        if (untranslatedCount > 0 && untranslatedCount < orig.length) {
+          // Resume mode: filter only untranslated
+          subsToSend = orig.filter((o, i) => !trans[i].text || !trans[i].text.trim() || trans[i].text.trim() === '.');
+          log(`[Backend] Gửi ${subsToSend.length}/${orig.length} dòng chưa dịch`);
+        } else {
+          log(`[Backend] Gửi toàn bộ ${orig.length} dòng`);
+        }
+
+        const srtContent = buildSRT(subsToSend);
+        const b64 = btoa(unescape(encodeURIComponent(srtContent)));
+
+        wsConn.send(JSON.stringify({
+          file_data: b64,
+          file_name: (fileName || 'input') + '.srt',
+          target_lang: G('tgt').value,
+          batch_size: parseInt(G('batch').value) || 30,
+          model_name: G('mdl').value.trim(),
+          api_keys: keys
+        }));
+      };
+
+      wsConn.onmessage = (evt) => {
+        try {
+          const msg = JSON.parse(evt.data);
+
+          if (msg.progress) updateEtaDash(msg.progress);
+
+          if (msg.type === 'started') {
+            log('[Backend] Session: ' + msg.session_id);
+            setStatus('🚀 Đang dịch qua backend...', 'ok');
+          }
+          else if (msg.type === 'progress') {
+            setStatus('⏳ Khởi tạo... ' + msg.progress.total + ' chunks', 'ok');
+          }
+          else if (msg.type === 'chunk' && msg.data) {
+            const changedIds = [];
+            const dataArr = Array.isArray(msg.data) ? msg.data : [];
+            
+            // Build lookup map if not exists (once)
+            if (!window._origIdMap) {
+              window._origIdMap = new Map();
+              orig.forEach((o, i) => window._origIdMap.set(String(o.id), i));
+            }
+            
+            for (const sub of dataArr) {
+              // O(1) lookup via Map
+              let idx = window._origIdMap.get(String(sub.id));
+              
+              // Fallback: try parseInt match
+              if (idx === undefined) {
+                idx = window._origIdMap.get(String(parseInt(sub.id)));
+              }
+              
+              if (idx !== undefined && idx >= 0 && sub.text) {
+                trans[idx].text = sub.text;
+                changedIds.push(orig[idx].id);
+              }
+            }
+            if (changedIds.length > 0) {
+              updateSubsPartial(changedIds);
+            }
+            const p = msg.progress;
+            if (p) {
+              updateEtaDash(p);
+              setStatus(`📦 ${p.done}/${p.total} chunks — ${fmtTime(p.eta_sec)} còn lại`, 'ok');
+            }
+          }
+          else if (msg.type === 'cleanup_chunk' && msg.data) {
+            const cleanIds = [];
+            for (const sub of msg.data) {
+              const idx = window._origIdMap ? window._origIdMap.get(String(sub.id)) : orig.findIndex(o => String(o.id) === String(sub.id));
+              if (idx !== undefined && idx >= 0) { trans[idx].text = sub.text; cleanIds.push(orig[idx].id); }
+            }
+            updateSubsPartial(cleanIds);
+          }
+          else if (msg.type === 'health_check' && msg.data) {
+            renderHealth(msg.data);
+          }
+          else if (msg.type === 'done') {
+            setBadge('done', 'HOÀN TẤT');
+            busy = false;
+            G('btnStop').style.display = 'none';
+            G('secDl').style.display = ''; G('secVal').style.display = '';
+            
+            // ── AUTO PIPELINE: QA → Scan → Validate → Download ──
+            pipelineBusy = true;
+            (async () => {
+              try {
+              // 1. Count issues + list specific lines
+              let emptyCount = 0, cjkCount = 0;
+              const emptyIds = [], cjkIds = [];
+              const srcLang = G('src').value;
+              trans.forEach((t, i) => {
+                if (!t.text || !t.text.trim()) {
+                  t.text = '.';
+                  emptyCount++; emptyIds.push(orig[i]?.id);
+                } else if (detectSourceChars(t.text, srcLang)) {
+                  cjkCount++; cjkIds.push(orig[i]?.id);
+                }
+              });
+              const total = trans.length;
+              const translated = total - emptyCount;
+              log(`\n━━━ 📊 BÁO CÁO SAU DỊCH ━━━`);
+              log(`✅ Đã dịch: ${translated}/${total} dòng`);
+              if (emptyCount > 0) {
+                log(`⚠️ ${emptyCount} DÒNG TRỐNG (chưa dịch): #${emptyIds.slice(0, 30).join(', #')}${emptyIds.length > 30 ? '...' : ''}`);
+              }
+              if (cjkCount > 0) {
+                log(`⚠️ ${cjkCount} DÒNG CÒN KÝ TỰ GỐC: #${cjkIds.slice(0, 30).join(', #')}${cjkIds.length > 30 ? '...' : ''}`);
+              }
+              if (emptyCount === 0 && cjkCount === 0) {
+                log(`🎉 Tất cả ${total} dòng đã dịch hoàn chỉnh!`);
+              }
+              log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+              renderSubs();
+              
+              // 2. Auto QA (if enabled)
+              const doQA = G('chkAutoQA')?.checked !== false;
+              if (doQA && (emptyCount + cjkCount) > 0) {
+                setStatus(`🔍 Auto QA: sửa ${emptyCount + cjkCount} dòng...`, 'warn');
+                const url0 = G('apiUrl').value.trim();
+                const mdl0 = G('mdl').value.trim();
+                const key0 = getKeys()[0] || '';
+                const bp = G('promptBase').value.trim(), cust = G('custom').value.trim();
+                const srcTxt = G('src').options[G('src').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+                const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
+                const fullPrompt = bp + (cust ? '\n\nYêu cầu thêm:\n' + cust : '') + '\n\nNgôn ngữ gốc: ' + srcTxt + '\nNgôn ngữ đích: ' + tgtTxt;
+                await autoQaBatch(orig, url0, mdl0, key0, fullPrompt);
+                log('[Auto Pipeline] QA xong');
+              } else if (!doQA && (emptyCount + cjkCount) > 0) {
+                log(`\n🚨🚨🚨 CẢNH BÁO: Auto-QA đang TẮT! 🚨🚨🚨`);
+                log(`⚠️ Có ${emptyCount + cjkCount} dòng lỗi CHƯA ĐƯỢC KIỂM TRA!`);
+                log(`👉 Bật Auto-QA trong ⚙️ Settings hoặc kiểm tra thủ công.`);
+                setStatus(`🚨 QA bị tắt! ${emptyCount + cjkCount} dòng lỗi chưa sửa — bật QA hoặc sửa tay`, 'err');
+              }
+              
+              // 3. Auto Scan (if enabled)
+              if (doQA) {
+                const cjkLeft = trans.filter(t => detectSourceChars(t.text || '', srcLang)).length;
+                if (cjkLeft > 0) {
+                  setStatus(`🔧 Auto Scan: sửa ${cjkLeft} dòng...`, 'warn');
+                  await scanMixedChars();
+                  log('[Auto Pipeline] Scan xong');
+                }
+              }
+              
+              // 4. Validate
+              validate();
+              
+              // 5. FINAL COUNT + DETAILED WARNING
+              let finalEmpty = 0, finalCjk = 0;
+              const finalEmptyIds = [], finalCjkIds = [];
+              trans.forEach((t, i) => {
+                if (!t.text || !t.text.trim() || t.text === '.') { finalEmpty++; finalEmptyIds.push(orig[i]?.id); }
+                else if (detectSourceChars(t.text, srcLang)) { finalCjk++; finalCjkIds.push(orig[i]?.id); }
+              });
+              const finalOK = total - finalEmpty - finalCjk;
+              const finalIssues = finalEmpty + finalCjk;
+              
+              log(`\n━━━ 🏁 KẾT QUẢ CUỐI CÙNG ━━━`);
+              log(`✅ Hoàn chỉnh: ${finalOK}/${total} dòng (${Math.round(finalOK/total*100)}%)`);
+              if (finalEmpty > 0) {
+                log(`❌ ${finalEmpty} DÒNG TRỐNG — cần sửa tay: #${finalEmptyIds.slice(0, 50).join(', #')}${finalEmptyIds.length > 50 ? '...' : ''}`);
+              }
+              if (finalCjk > 0) {
+                log(`❌ ${finalCjk} DÒNG CÒN KÝ TỰ GỐC — cần sửa tay: #${finalCjkIds.slice(0, 50).join(', #')}${finalCjkIds.length > 50 ? '...' : ''}`);
+              }
+              if (finalIssues > 0) {
+                log(`\n⚠️ HÀNH ĐỘNG CẦN LÀM:`);
+                log(`   1. Bấm Ctrl+F để tìm dòng lỗi`);
+                log(`   2. Sửa trực tiếp trong ô "Bản dịch"`);
+                log(`   3. Hoặc bấm 🔍 trên tab Phụ đề để tìm & thay thế`);
+              } else {
+                log(`🎉 HOÀN HẢO! Tất cả ${total} dòng đã dịch đúng ngôn ngữ đích.`);
+              }
+              log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+              
+              if (finalIssues === 0) {
+                setStatus(`✅ Hoàn hảo! ${total} dòng dịch xong`, 'ok');
+              } else {
+                setStatus(`⚠️ ${finalOK}/${total} OK | ${finalEmpty} trống | ${finalCjk} ký tự gốc — cần sửa tay!`, 'warn');
+              }
+              document.title = `✅ ${finalOK}/${total} dòng`;
+              renderSubs(); saveHistory();
+              
+              // 5.5 Auto-SEO (if enabled)
+              if (G('chkAutoSEO')?.checked) {
+                log('[Pipeline] Tạo SEO tự động...');
+                setStatus('📢 Đang tạo SEO...', 'ok');
+                try { await generateSEO(); downloadSEO(); } catch(e) { log('[SEO] Lỗi: ' + e.message); }
+              }
+              
+              // 6. Auto-download (with warning if issues)
+              const doDL = G('chkAutoDownload')?.checked !== false;
+              if (doDL) {
+                if (finalIssues > 5) {
+                  const ok = confirm(`⚠️ Còn ${finalIssues} dòng có vấn đề!\n\n• ${finalEmpty} dòng trống\n• ${finalCjk} dòng còn ký tự gốc\n\nBạn có muốn tải file xuống không?\n(Nhấn Hủy để sửa trước)`);
+                  if (ok) { dlSRT(); completedFiles.push(fileName + '.srt'); log(`[Auto] Đã tải ${fileName}.srt (có ${finalIssues} dòng lỗi)`); }
+                  else { log(`[Pipeline] Người dùng chọn sửa trước khi tải`); setStatus(`⏸️ Chưa tải — sửa ${finalIssues} dòng lỗi rồi bấm tải thủ công`, 'warn'); }
+                } else {
+                  dlSRT();
+                  completedFiles.push(fileName + '.srt');
+                  log(`[Auto] Đã tải ${fileName}.srt`);
+                }
+              } else {
+                log('[Pipeline] Tự động tải tắt — bấm nút tải thủ công');
+              }
+              
+              // 7. Auto-next from queue
+              if (fileQueue.length > 0 && autoMode) {
+                const nextFile = fileQueue.shift();
+                log(`[Queue] Còn ${fileQueue.length} files. Tiếp: ${nextFile.name}`);
+                setStatus(`📁 Chuyển file tiếp: ${nextFile.name} (còn ${fileQueue.length})...`, 'ok');
+                renderQueue();
+                setTimeout(() => {
+                  loadFile(nextFile);
+                  renderQueue();
+                  setTimeout(() => { if (!busy && orig.length) startTranslation(); }, 1000);
+                }, 2000);
+              } else {
+                autoMode = false;
+                renderQueue();
+              }
+              } catch(pipelineErr) {
+                log(`[Pipeline] Lỗi: ${pipelineErr.message} — tải file dù sao...`);
+                // Safety: still download even if QA/scan fails
+                try { dlSRT(); completedFiles.push(fileName + '.srt'); } catch(e2) {}
+              } finally {
+                pipelineBusy = false;
+              }
+            })();
+          }
+          else if (msg.type === 'cancelled') {
+            log('[Backend] Đã hủy.');
+            setBadge('err', 'ĐÃ HỦY');
+            busy = false; G('btnStop').style.display = 'none';
+          }
+          else if (msg.type === 'error') {
+            log('[Backend] ❌ Lỗi: ' + msg.message);
+            setStatus('❌ ' + msg.message, 'err');
+            saveHistory(); // Auto-save on error
+          }
+          else if (msg.type === 'provider_exhausted') {
+            log('[Backend] ⚠️ Provider hết token: ' + msg.message);
+            setBadge('warn', 'HẾT TOKEN');
+            setStatus('⚠️ API hết token! Nhập key/model mới để tiếp tục...', 'warn');
+            saveHistory(); // Auto-save on pause
+            showResumeDialog();
+          }
+          else if (msg.type === 'resumed') {
+            log('[Backend] ✅ Đã resume với ' + msg.keys_added + ' key mới');
+            setBadge('work', 'ĐANG DỊCH...');
+            setStatus('🔄 Đã tiếp tục dịch với key mới!', 'ok');
+          }
+        } catch (e) {
+          log('[Backend] Parse error: ' + e.message);
+        }
+      };
+
+      wsConn.onerror = (e) => {
+        log('[Backend] WebSocket lỗi');
+        setStatus('❌ Lỗi kết nối WebSocket', 'err');
+        busy = false; G('btnGo').disabled = false;
+      };
+
+      wsConn.onclose = () => {
+        log('[Backend] Ngắt kết nối');
+        if (busy) {
+          busy = false;
+          G('btnStop').style.display = 'none';
+          G('btnGo').disabled = false;
+        }
+      };
+    }
+
+    // Routing đã xử lý bên trong startTranslation() (line 2078)
+
+    // WebSocket abort integrated directly into abort()
+
+    function resetAll() {
+      if (busy) { abort(); return; }
+      orig = []; trans = []; logs = []; valErrs = []; fileName = '';
+      G('filePill').style.display = 'none'; G('btnGo').disabled = true; G('btnMore').style.display = 'none';
+      G('progArea').style.display = 'none'; G('secDl').style.display = 'none'; G('secVal').style.display = 'none';
+      G('cntSub').textContent = '0'; G('cntLog').textContent = '0'; G('logEl').textContent = 'Chưa có log.';
+      G('etaDash').style.display = 'none'; G('healthPanel').style.display = 'none';
+      renderSubs(); setBadge('idle', 'SẴN SÀNG'); setStatus('Sẵn sàng'); document.title = 'Dịch Phụ Đề SRT — AI';
+    }
+    // ── RESUME DIALOG — khi provider hết token ──
+    function showResumeDialog() {
+      // Check if dialog already exists
+      if (G('resumeDialog')) G('resumeDialog').remove();
+      
+      const div = document.createElement('div');
+      div.id = 'resumeDialog';
+      div.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;justify-content:center;align-items:center';
+      div.innerHTML = `
+        <div style="background:#1a1a2e;border:1px solid #00d2ff;border-radius:12px;padding:24px;max-width:480px;width:90%;color:#fff">
+          <h3 style="margin:0 0 12px;color:#ff6b6b">⚠️ API Provider hết token!</h3>
+          <p style="color:#aaa;font-size:13px;margin-bottom:16px">Tất cả API key đều hết quota. Nhập key mới hoặc đổi model để tiếp tục dịch từ chỗ đang dở.</p>
+          <label style="font-size:13px;color:#eee">API Keys mới (mỗi dòng 1 key):</label>
+          <textarea id="resumeKeys" rows="3" style="width:100%;margin:6px 0;background:#0d1117;color:#eee;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px" placeholder="gemini:gemini-2.5-flash:AIza...
+groq:llama-3.3-70b:gsk_..."></textarea>
+          <label style="font-size:13px;color:#eee">Model (tùy chọn):</label>
+          <input id="resumeModel" type="text" style="width:100%;margin:6px 0;background:#0d1117;color:#eee;border:1px solid #333;border-radius:6px;padding:8px;font-size:13px" placeholder="gemini-2.5-flash-preview-04-17">
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button onclick="doResume()" style="flex:1;padding:10px;background:linear-gradient(135deg,#00d2ff,#7b2ff7);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">🔄 Tiếp tục dịch</button>
+            <button onclick="G('resumeDialog').remove()" style="padding:10px 16px;background:#333;color:#aaa;border:none;border-radius:8px;cursor:pointer">Đóng</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(div);
+    }
+    
+    function doResume() {
+      const keys = G('resumeKeys')?.value.trim().split('\n').filter(k => k.trim()) || [];
+      const model = G('resumeModel')?.value.trim() || '';
+      if (!keys.length) { alert('Vui lòng nhập ít nhất 1 API key!'); return; }
+      
+      if (wsConn && wsConn.readyState === WebSocket.OPEN) {
+        wsConn.send(JSON.stringify({
+          action: 'resume',
+          new_keys: keys,
+          new_model: model
+        }));
+        log('[Resume] Đã gửi ' + keys.length + ' key mới tới backend');
+      } else {
+        log('[Resume] ❌ WebSocket không kết nối');
+        alert('WebSocket đã ngắt! Hãy bắt đầu lại phiên dịch.');
+      }
+      G('resumeDialog')?.remove();
+    }
+    
+    // ── CHECK UNFINISHED SESSIONS — hiện prompt khi load page ──
+    async function checkUnfinished() {
+      try {
+        const all = await loadHistory();
+        if (!all.length) return;
+        // Find most recent unfinished session
+        const unfinished = all.filter(h => h.done < h.total).sort((a, b) => b.id - a.id);
+        if (!unfinished.length) return;
+        
+        const h = unfinished[0];
+        const pct = Math.round(h.done / h.total * 100);
+        
+        // Show toast notification
+        const toast = document.createElement('div');
+        toast.id = 'resumeToast';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid #00d2ff;border-radius:12px;padding:16px 20px;z-index:9999;color:#fff;box-shadow:0 8px 32px rgba(0,210,255,0.3);max-width:380px;animation:slideIn 0.3s ease';
+        toast.innerHTML = `
+          <div style="font-weight:600;margin-bottom:6px">📋 Phiên dịch chưa hoàn thành</div>
+          <div style="font-size:13px;color:#aaa;margin-bottom:10px">
+            <b>${h.fileName}</b> — ${h.done}/${h.total} (${pct}%)<br>
+            <small>${h.date}</small>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="restoreAndContinue(${h.id})" style="flex:1;padding:8px;background:linear-gradient(135deg,#00d2ff,#7b2ff7);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">▶ Tiếp tục</button>
+            <button onclick="G('resumeToast').remove()" style="padding:8px 12px;background:#333;color:#aaa;border:none;border-radius:6px;cursor:pointer;font-size:13px">Bỏ qua</button>
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        // Auto-dismiss after 15s
+        setTimeout(() => { if (G('resumeToast')) G('resumeToast').remove(); }, 15000);
+      } catch (e) { console.warn('[Resume] Check error:', e); }
+    }
+    
+    async function restoreAndContinue(histId) {
+      G('resumeToast')?.remove();
+      try {
+        const all = await loadHistory();
+        const h = all.find(x => x.id === histId);
+        if (!h) return;
+        
+        // Restore state
+        fileName = h.fileName;
+        orig = h.orig;
+        trans = h.trans.map((t, i) => ({
+          id: orig[i]?.id || t.id,
+          start: orig[i]?.start || '',
+          end: orig[i]?.end || '',
+          text: t.text || ''
+        }));
+        
+        // Restore UI
+        if (h.src) G('src').value = h.src;
+        if (h.tgt) G('tgt').value = h.tgt;
+        if (h.model) G('mdl').value = h.model;
+        
+        renderSubs();
+        G('filePill').style.display = ''; G('filePill').textContent = '📄 ' + fileName;
+        G('cntSub').textContent = orig.length;
+        G('btnGo').disabled = false;
+        
+        const undone = trans.filter(t => !t.text || !t.text.trim()).length;
+        setStatus(`📋 Đã khôi phục "${fileName}" — ${h.done}/${h.total} đã dịch, ${undone} còn lại`, 'ok');
+        setBadge('idle', 'ĐÃ KHÔI PHỤC');
+        log('[Resume] Khôi phục session: ' + fileName);
+        
+        // Show download section if there are any translations
+        if (h.done > 0) {
+          G('secDl').style.display = ''; G('secVal').style.display = '';
+        }
+      } catch (e) {
+        log('[Resume] Lỗi khôi phục: ' + e.message);
+      }
+    }
+    
+    // Auto-save on tab close/refresh
+    window.addEventListener('beforeunload', () => {
+      if (busy && orig.length && trans.length) {
+        saveHistory();
+      }
+    });
+    
+    // Check for unfinished sessions on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      restoreTheme();
+      loadSettingsFlags();
+      setTimeout(() => { updateAiPill(); autoBatch(); }, 500);
+      setTimeout(checkUnfinished, 1500);
+    });
+    
+  </script>
+</body>
+
+</html>
