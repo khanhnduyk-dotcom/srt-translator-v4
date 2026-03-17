@@ -826,7 +826,8 @@ CORRECT output:
             
             # ── Cookie mode: route through local /cookie-translate ──
             if api_key == 'cookie':
-                use_endpoint = "http://localhost:8000/cookie-translate"
+                _port = os.environ.get('PORT', '8000')
+                use_endpoint = f"http://localhost:{_port}/cookie-translate"
                 headers = {"Content-Type": "application/json"}  # No auth header needed
             
             try:
