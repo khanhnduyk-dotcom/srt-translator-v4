@@ -1138,6 +1138,10 @@ async def cookie_debug():
 
 
 # ── SERVE FRONTEND ──
+@app.get("/logo.png")
+async def serve_logo():
+    return FileResponse("logo.png", media_type="image/png")
+
 @app.get("/")
 async def serve_frontend():
     return FileResponse("index.html", media_type="text/html")

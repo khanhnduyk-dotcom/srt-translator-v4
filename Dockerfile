@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app files
-COPY server.py translator.py config.py index.html ./
+COPY server.py translator.py config.py index.html logo.png ./
 
 # Create required directories
 RUN mkdir -p temp_uploads watch_input watch_output watch_done

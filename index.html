@@ -1393,10 +1393,10 @@
             <label style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);cursor:pointer">
               <input type="checkbox" id="backendMode" checked style="accent-color:var(--green);width:14px;height:14px">
               <span>🖥️ <b>Backend Mode</b>
-                <span id="backendStatus" style="color:var(--text3)">ws://localhost:8000</span></span>
+                <span id="backendStatus" style="color:var(--text3)">WebSocket</span></span>
             </label>
             <div id="backendUrl" style="display:none;margin-top:6px">
-              <input id="wsUrl" value="ws://localhost:8000/ws/translate" style="font-size:10px">
+              <input id="wsUrl" value="" style="font-size:10px">
             </div>
           </div>
         </div>
@@ -1630,6 +1630,12 @@ Chỉ xuất các dòng [N] đã dịch, không thêm giải thích hay chú th�
   </div>
 
   <script>
+    // ── DYNAMIC API BASE (works both locally and on Render) ──
+    const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:8000'
+      : window.location.origin;
+    const WS_BASE = API_BASE.replace(/^http/, 'ws');
+
     // ── STATE ──
     let orig = [], trans = [], fileName = '', busy = false, stop = false, logs = [], valErrs = [], keyIdx = 0;
     let batchStartTime = 0, batchTimes = [];
@@ -1643,9 +1649,9 @@ Chỉ xuất các dòng [N] đã dịch, không thêm giải thích hay chú th�
       claude: { url: 'https://api.anthropic.com/v1/messages', mdl: 'claude-3-5-haiku-20241022', key: '', rpm: 50 },
       groq: { url: 'https://api.groq.com/openai/v1/chat/completions', mdl: 'llama-3.3-70b-versatile', key: '', rpm: 30 },
       ollama: { url: 'http://localhost:11434/v1/chat/completions', mdl: 'llama3.2', key: 'ollama', rpm: 0 },
-      python_backend: { url: 'http://localhost:8000/translate', mdl: 'llama-3.3-70b-versatile', key: '', rpm: 0 },
-      gemini_cookie: { url: 'http://localhost:8000/cookie-translate', mdl: 'gemini-2.0-flash', key: 'cookie', rpm: 0 },
-      gemini_hybrid: { url: 'http://localhost:8000/cookie-translate', mdl: 'gemini-2.0-flash', key: 'cookie', rpm: 0 }
+      python_backend: { url: API_BASE + '/translate', mdl: 'llama-3.3-70b-versatile', key: '', rpm: 0 },
+      gemini_cookie: { url: API_BASE + '/cookie-translate', mdl: 'gemini-2.0-flash', key: 'cookie', rpm: 0 },
+      gemini_hybrid: { url: API_BASE + '/cookie-translate', mdl: 'gemini-2.0-flash', key: 'cookie', rpm: 0 }
     };
 
     // Danh sách model theo từng nhà cung cấp
@@ -2596,7 +2602,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
       // Auto-detect: nếu provider là python_backend nhưng server không chạy → chuyển sang groq
       if (activeProv === 'python_backend') {
         try {
-          const healthRes = await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(2000) });
+          const healthRes = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
           if (!healthRes.ok) throw new Error('not ok');
         } catch (e) {
           console.warn('[Init] Backend server not running, switching to groq');
@@ -2743,7 +2749,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
       const el = G('cookieStatus');
       if (el) el.innerHTML = '<span style="color:var(--yellow)">⏳ Kiểm tra server...</span>';
       try {
-        await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(2000) });
+        await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
         // Server already running
         refreshCookiePool();
         startKeepAliveTimer();
@@ -2752,13 +2758,13 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
         // Server not running — try to auto-start via /start-server
         if (el) el.innerHTML = '<span style="color:var(--yellow)">🚀 Đang khởi động server...</span>';
         try {
-          await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(500) });
+          await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(500) });
         } catch(e2) {}
         // Retry every 2s for 15s
         for (let i = 0; i < 7; i++) {
           await new Promise(r => setTimeout(r, 2000));
           try {
-            await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(2000) });
+            await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
             refreshCookiePool();
             startKeepAliveTimer();
             return;
@@ -2776,7 +2782,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
       if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
       if (el) el.innerHTML = '<span style="color:var(--yellow)">🚀 CDP...</span>';
       try {
-        const resp = await fetch('http://localhost:8000/cookie-auto', {
+        const resp = await fetch(`${API_BASE}/cookie-auto`, {
           method: 'POST', headers: {'Content-Type': 'application/json'},
           signal: AbortSignal.timeout(10000)
         });
@@ -2796,7 +2802,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
     }
     async function refreshCookiePool() {
       try {
-        const resp = await fetch('http://localhost:8000/cookie-pool', { signal: AbortSignal.timeout(5000) });
+        const resp = await fetch(`${API_BASE}/cookie-pool`, { signal: AbortSignal.timeout(5000) });
         const data = await resp.json();
         const badge = G('cookiePoolBadge');
         if (badge) badge.textContent = data.total || 0;
@@ -2831,7 +2837,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
       const cookie = ta?.value?.trim();
       if (!cookie) return;
       try {
-        const resp = await fetch('http://localhost:8000/cookie-add', {
+        const resp = await fetch(`${API_BASE}/cookie-add`, {
           method: 'POST', headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({cookie})
         });
@@ -2864,7 +2870,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
       if (!silent && btn) { btn.disabled = true; btn.textContent = '⏳'; }
       if (!silent && el) el.innerHTML = '🔄 Đang ping Gemini...';
       try {
-        const resp = await fetch('http://localhost:8000/cookie-keepalive-now', {
+        const resp = await fetch(`${API_BASE}/cookie-keepalive-now`, {
           method: 'POST', signal: AbortSignal.timeout(30000)
         });
         const data = await resp.json();
@@ -2921,7 +2927,7 @@ Chỉ xuất đúng format trên, không thêm giải thích.`;
     async function setManualCookie() {
       const cookie = G('manualCookie')?.value?.trim();
       try {
-        const resp = await fetch('http://localhost:8000/cookie-set', {
+        const resp = await fetch(`${API_BASE}/cookie-set`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ cookie })
         });
@@ -3506,7 +3512,7 @@ ${allText}`;
     // ── HELPER: lấy API config trực tiếp (bypass python_backend) ──
     function getDirectAPI() {
       if (activeProv === 'gemini_cookie') {
-        return { url: 'http://localhost:8000/cookie-translate', mdl: G('mdl').value.trim(), keys: ['cookie'], isCookie: true };
+        return { url: `${API_BASE}/cookie-translate`, mdl: G('mdl').value.trim(), keys: ['cookie'], isCookie: true };
       }
       if (activeProv !== 'python_backend') {
         return { url: G('apiUrl').value.trim(), mdl: G('mdl').value.trim(), keys: getKeys() };
@@ -3813,7 +3819,7 @@ Quy tắc:
       let url = G('apiUrl').value.trim(), mdl = G('mdl').value.trim();
       const allKeys = getKeys();
       const key = allKeys[0] || '';
-      if (url.includes('localhost:8000')) { url = url.replace('/translate', '').replace(/\/$/, '') + '/retry'; }
+      if (url.includes(API_BASE)) { url = url.replace('/translate', '').replace(/\/$/, '') + '/retry'; }
       const srcTxt = G('src').options[G('src').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
       const tgtTxt = G('tgt').options[G('tgt').selectedIndex].text.replace(/[^\w\s\u00C0-\u024F]/g, '').trim();
       const bp = G('promptBase').value.trim(), cust = G('custom').value.trim();
@@ -3992,7 +3998,7 @@ Quy tắc:
 
     async function doTransPythonBackend() {
       const tgtVal = G('tgt').value;
-      const url = G('apiUrl').value.trim() || 'http://localhost:8000/translate';
+      const url = G('apiUrl').value.trim() || `${API_BASE}/translate`;
 
       setBadge('work', 'ĐANG DỊCH...');
       G('btnGo').disabled = true; G('btnStop').style.display = ''; G('progArea').style.display = 'none';
@@ -4628,12 +4634,13 @@ Quy tắc:
     (async function autoDetectBackend() {
       const statusEl = G('backendStatus');
       try {
-        const resp = await fetch('http://localhost:8000/health', { signal: AbortSignal.timeout(2000) });
+        const resp = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
         if (resp.ok) {
           G('backendMode').checked = true;
           G('backendUrl').style.display = '';
+          if (!G('wsUrl').value) G('wsUrl').value = WS_BASE + '/ws/translate';
           if (statusEl) statusEl.innerHTML = '<span style="color:var(--green)">✅ Server online</span>';
-          log('[Backend] Auto-detected: server đang chạy tại localhost:8000');
+          log('[Backend] Auto-detected: server đang chạy tại ' + API_BASE);
         } else {
           G('backendMode').checked = false;
           if (statusEl) statusEl.innerHTML = '<span style="color:var(--red)">❌ Server offline</span>';
