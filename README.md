@@ -1,6 +1,7 @@
-# ⚡ SRT Translator v4 — AI Subtitle Translation Tool
+# ⚡ SRT Translator v5 — AI Subtitle Translation Tool
 
 Công cụ dịch phụ đề SRT tự động bằng AI. Hỗ trợ Gemini, OpenAI, Groq, DeepSeek, Claude, Ollama.
+Tính năng mới V5: **Hybrid Cookie Mode**, **Gemini 3.x**, **chống lệch dòng 100%**, **429 stagger**.
 
 ## 🚀 Cài đặt nhanh
 
@@ -91,13 +92,6 @@ SRT-Translator/
 
 ## 📝 Changelog
 
-### v4 (2025-03-15)
-- 🚀 **Smart max_tokens** — Flash: 32K, Pro: 16K, Groq: 8K (tự điều chỉnh theo model)
-- ⚡ **Auto batch by model** — đổi model = batch tự cập nhật (Flash: 300, Pro: 200, Groq: 150)
-- 🔁 **Auto-retry** — batch lỗi tự retry 1 lần, sau đó hiện nút thủ công
-- 🎭 **Char analysis reminder** — nhắc phân tích nhân vật trước khi dịch
-- 🌐 **Hybrid language prompt** — hướng dẫn xưng hô theo ngôn ngữ đích (VI/JA/KO)
-- 👁 **Preview language guide** — nút xem prompt ngôn ngữ trước khi dịch
 - 💾 **Save on all exits** — lưu tiến trình mọi trường hợp (lỗi, dừng, retry)
 - ⌨️ **ESC to close dialogs** — phím tắt đóng dialog, quay về xem UI
 - 🐛 **14 bugs fixed** — processBatch, retryFailed, partial-success, batchSz fallback

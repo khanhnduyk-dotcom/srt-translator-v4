@@ -28,9 +28,21 @@ for d in ['temp_uploads', 'srt_in', 'srt_out']:
     os.makedirs(d, exist_ok=True)
 
 
+def find_chrome():
+    """Tìm Chrome executable."""
+    paths = [
+        os.path.expandvars(r"%ProgramFiles%\Google\Chrome\Application\chrome.exe"),
+        os.path.expandvars(r"%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"),
+        os.path.expandvars(r"%LocalAppData%\Google\Chrome\Application\chrome.exe"),
+    ]
+    for p in paths:
+        if os.path.exists(p):
+            return p
+    return None
+
 def check_and_install_deps():
     """Tự cài dependencies nếu thiếu."""
-    required = ['fastapi', 'uvicorn', 'httpx']
+    required = ['fastapi', 'uvicorn', 'httpx', 'websockets']
     missing = []
     for pkg in required:
         try:
@@ -159,8 +171,24 @@ def main():
     print("═══════════════════════════════════════════")
     print()
 
-    # Mở trình duyệt
-    webbrowser.open("http://localhost:8080")
+    # Mở Chrome với debug port (cho auto-cookie)
+    chrome_path = find_chrome()
+    if chrome_path:
+        print("🍪 Mở Chrome với CDP debug port 9222...")
+        try:
+            subprocess.Popen([
+                chrome_path,
+                "--remote-debugging-port=9222",
+                "--remote-allow-origins=*",
+                "http://localhost:8080"
+            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print("   ✅ Chrome đã mở (CDP port 9222 sẵn sàng)")
+            print("   💡 Bấm '🚀 Lấy tự động' trong app để lấy cookie Gemini")
+        except Exception as e:
+            print(f"   ⚠️ Không mở được Chrome: {e}")
+            webbrowser.open("http://localhost:8080")
+    else:
+        webbrowser.open("http://localhost:8080")
 
     print("🟢 Đang chạy. Nhấn Ctrl+C hoặc đóng cửa sổ để tắt tất cả.")
     print()

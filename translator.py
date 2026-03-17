@@ -2,6 +2,7 @@ import asyncio
 import time
 import json
 import re
+import random
 import httpx
 import sys
 import os
@@ -11,6 +12,10 @@ from concurrent.futures import ThreadPoolExecutor
 sys.stdout.reconfigure(encoding='utf-8')
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import MODEL_NAME, ACCOUNTS, RATE_LIMITS, TOTAL_WORKERS
+
+# ── Global registry for health dashboard ──
+# Maps file_id → KeyManager; server.py reads this for /api/worker-health
+_active_key_managers: dict = {}
 
 # Ánh xạ mã ngôn ngữ ngắn → tên đầy đủ bằng tiếng Anh
 LANG_MAP = {
@@ -43,13 +48,32 @@ def has_source_chars(text, target_lang):
         return has_cjk(text)
     return False
 
+def validate_length_ratio(source_text: str, trans_text: str) -> bool:
+    """
+    Kiểm tra tỷ lệ độ dài translation so với source có hợp lý không.
+    Tránh trường hợp AI swap text giữa các dòng (dòng 2 char → dịch ra 20 char).
+    Returns True nếu tỷ lệ ổn, False nếu nghi ngờ bị swap.
+    """
+    s_len = len(source_text.strip())
+    t_len = len(trans_text.strip())
+    if s_len == 0 or t_len == 0:
+        return True  # Empty = fine, don't block
+    
+    # Very short sources (≤5 chars) shouldn't produce very long translations (>5x)
+    if s_len <= 5 and t_len > s_len * 5 and t_len > 20:
+        return False
+    # Very long sources (>20 chars) shouldn't produce empty-like translations (<3 chars)
+    if s_len > 20 and t_len < 3:
+        return False
+    return True
 
 def parse_translated_response(translated_str: str, subs_ref: list) -> list:
     """Parse AI response thành danh sách bản dịch, xử lý:
-    - Multi-line subtitle: [N] line1\nline2 → gom vào 1 entry
+    - Multi-line subtitle: [N] line1\\nline2 → gom vào 1 entry
     - Duplicate [N]: first-write-wins, skip duplicate
     - AI notes/explanations: lọc bỏ dòng Note:, *, (, ---
-    - Fallback khi < 50% match format [N]
+    - KHÔNG fallback positional để tránh lệch dòng
+    - Per-line length ratio check để phát hiện AI swap số
     
     Returns: list[str] có len == len(subs_ref)
     """
@@ -71,15 +95,20 @@ def parse_translated_response(translated_str: str, subs_ref: list) -> list:
         if match:
             # Save previous entry if any
             if current_num is not None and current_num not in trans_map:
-                # Bug 1 fix: first-write-wins for duplicate [N]
                 if 1 <= current_num <= num_expected:
-                    trans_map[current_num] = '\n'.join(current_text_parts).strip()
+                    text_result = '\n'.join(current_text_parts).strip()
+                    src_text = subs_ref[current_num - 1]['text']
+                    # Length ratio validation — detect AI swap
+                    if text_result and validate_length_ratio(src_text, text_result):
+                        trans_map[current_num] = text_result
+                    elif text_result:
+                        print(f"[AccuracyGuard] Line [{current_num}] length suspicious: src={len(src_text)}ch → trans={len(text_result)}ch — kept anyway but flagged")
+                        trans_map[current_num] = text_result  # Keep but log
             
             current_num = int(match.group(1))
             current_text_parts = [match.group(2).strip()] if match.group(2).strip() else []
         elif current_num is not None:
-            # Bug 5 fix: multi-line subtitle continuation
-            # Filter out AI notes/explanations (Bug 2)
+            # Multi-line subtitle continuation
             if _is_ai_note(line_stripped):
                 continue
             current_text_parts.append(line_stripped)
@@ -87,42 +116,29 @@ def parse_translated_response(translated_str: str, subs_ref: list) -> list:
     # Save last entry
     if current_num is not None and current_num not in trans_map:
         if 1 <= current_num <= num_expected:
-            trans_map[current_num] = '\n'.join(current_text_parts).strip()
+            text_result = '\n'.join(current_text_parts).strip()
+            if text_result:
+                trans_map[current_num] = text_result
     
     # Phase 2: Build result array
     match_count = len(trans_map)
+    trans_texts = []
     
     if match_count >= num_expected * 0.5:
-        # Enough [N] matches — use trans_map
-        trans_texts = []
+        # Enough [N] matches — use trans_map, return source for missing lines (will trigger retry)
         for idx in range(1, num_expected + 1):
             if idx in trans_map and trans_map[idx]:
                 trans_texts.append(trans_map[idx])
             else:
-                # Fallback to source text (cleanup phase will handle)
+                # Return source text for missing lines — cleanup phase detects CJK and retries
                 trans_texts.append(subs_ref[idx - 1]['text'])
         return trans_texts
     
-    # Phase 3: Fallback — AI didn't use [N] format
-    raw_lines = [l.strip() for l in translated_str.split('\n') if l.strip()]
-    
-    # Filter out AI notes/explanations
-    clean_lines = []
-    for l in raw_lines:
-        m = re.match(r'\[\d+\]\s*(.*)', l)
-        text = m.group(1) if m else l
-        if not _is_ai_note(text):
-            clean_lines.append(text)
-    
-    trans_texts = clean_lines[:num_expected]
-    # Pad with source text if AI returned fewer lines
-    while len(trans_texts) < num_expected:
-        trans_texts.append(subs_ref[len(trans_texts)]['text'])
-    
-    if match_count < num_expected * 0.5 and match_count > 0:
-        print(f"Canh bao: AI khong tra dung format [N] ({match_count}/{num_expected} match). Fallback split theo dong.")
-    
-    return trans_texts
+    # Phase 3: AI didn't use [N] format at all (<50% match)
+    # CRITICAL: DO NOT do positional fallback — it causes line-shift bugs!
+    # Instead: return source text for ALL lines → retry mechanism will handle it
+    print(f"[AccuracyGuard] Batch returned <50% [N] format ({match_count}/{num_expected}). Skipping positional fallback — returning source for retry.")
+    return [sub['text'] for sub in subs_ref]
 
 
 def _is_ai_note(text: str) -> bool:
@@ -709,23 +725,29 @@ class AIWorker:
             sys_prompt = f"""You are an expert subtitle translator. Translate subtitles to {self.target_lang}.{char_block}
 
 ABSOLUTE RULES (VIOLATION = FAILURE):
-1. Input: numbered lines [1], [2], [3]... Output: EXACT same numbered lines.
+1. Input: numbered lines [1], [2], [3]... Output: EXACT same numbered lines [1], [2], [3]...
 2. EVERY character in the output MUST be in {self.target_lang}. ABSOLUTELY ZERO Chinese/Japanese/Korean characters allowed in output.
 3. Sound effects (嗯 嘶 哼 喂 啊 嗨 喔 呵 哈 嘿) → natural {self.target_lang} equivalents (Ùm, À, Hừ, A, ...).
 4. Character names: use the transliterations from [CHARACTER REFERENCE] above. If not listed, transliterate phonetically.
 5. ALL Chinese units/words must be translated: 两/两=lượng, 银子=bạc, 金子=vàng, 呢=nha/nhỉ, 呀=à/a, 万物=vạn vật, 万万=Vạn Vạn.
 6. Output ONLY the [N] lines. No notes, explanations, or extra text.
 7. If unsure about a character/word, STILL translate it to your best guess in {self.target_lang}. NEVER leave original characters.
+8. NEVER swap the content of different line numbers. [1] must translate EXACTLY [1]'s source. [2] translates EXACTLY [2]'s source. No mixing allowed.
 
-Input:
+Example input:
 [1] 你好
-[2] 10两银子呢
-[3] 嗯
+[2] 只是常田的她主来明还没有出息
+[3] 社
 
-Correct output:
+WRONG output (swapping — FORBIDDEN):
 [1] Xin chào
-[2] 10 lượng bạc nha
-[3] Ùm"""
+[2] ดู
+[3] องหมัง? อืม...
+
+CORRECT output:
+[1] Xin chào
+[2] Nhưng cô ấy vẫn chưa có thành tích gì
+[3] Xã"""
             
             max_retries = 3
             
@@ -802,7 +824,14 @@ Correct output:
                 "Content-Type": "application/json"
             }
             
+            # ── Cookie mode: route through local /cookie-translate ──
+            if api_key == 'cookie':
+                use_endpoint = "http://localhost:8000/cookie-translate"
+                headers = {"Content-Type": "application/json"}  # No auth header needed
+            
             try:
+                # Jitter: random delay 0-300ms to avoid synchronized burst from multiple workers
+                await asyncio.sleep(random.uniform(0, 0.3))
                 resp = await self.client.post(use_endpoint, json=payload, headers=headers)
                 if resp.status_code == 200:
                     data = resp.json()
@@ -819,6 +848,59 @@ Correct output:
                         await job_queue.put(job)
                         job_queue.task_done()
                         continue
+                    
+                    # ── Per-line individual retry ──
+                    # Check each translated line for remaining CJK (= untranslated / swap victim)
+                    subs_ref_chunk = job.get('subs_ref', [])
+                    if subs_ref_chunk and 'per_line_retried' not in job:
+                        parsed_now = parse_translated_response(translated_content, subs_ref_chunk)
+                        bad_indices = []  # 1-based indices of lines needing retry
+                        for li, (src, trs) in enumerate(zip(subs_ref_chunk, parsed_now), 1):
+                            if has_cjk(trs) and not has_cjk(src.get('text', '')):
+                                # CJK in translation but NOT in source = bad line
+                                bad_indices.append(li)
+                            elif (len(src.get('text','').strip()) > 15 and len(trs.strip()) < 3):
+                                # Long source → very short translation (swap victim)
+                                bad_indices.append(li)
+
+                        if bad_indices and len(bad_indices) <= 10:
+                            # Build mini-batch with only bad lines
+                            mini_lines = []
+                            mini_subs = []
+                            for bi in bad_indices:
+                                s = subs_ref_chunk[bi - 1]
+                                mini_lines.append(f"[{bi}] {s['text']}")
+                                mini_subs.append(s)
+                            mini_text = "\n".join(mini_lines)
+                            print(f"[Worker {self.worker_id}] Per-line retry: {len(bad_indices)} bad lines {bad_indices} in chunk {chunk_index}")
+                            
+                            try:
+                                mini_payload = {
+                                    "model": use_model,
+                                    "messages": [
+                                        {"role": "system", "content": sys_prompt},
+                                        {"role": "user", "content": mini_text}
+                                    ],
+                                    "stream": False, "temperature": 0.1
+                                }
+                                await asyncio.sleep(random.uniform(0.1, 0.4))
+                                mini_resp = await self.client.post(use_endpoint, json=mini_payload, headers=headers)
+                                if mini_resp.status_code == 200:
+                                    mini_content = mini_resp.json()['choices'][0]['message']['content']
+                                    mini_parsed = parse_translated_response(mini_content, mini_subs)
+                                    # Merge: patch parsed_now with mini results
+                                    for i, bi in enumerate(bad_indices):
+                                        if i < len(mini_parsed) and mini_parsed[i] and not has_cjk(mini_parsed[i]):
+                                            parsed_now[bi - 1] = mini_parsed[i]
+                                    # Rebuild translated_content from patched parsed_now
+                                    translated_content = "\n".join(
+                                        f"[{i+1}] {t}" for i, t in enumerate(parsed_now)
+                                    )
+                                    print(f"[Worker {self.worker_id}] Per-line retry DONE: {len(bad_indices)} lines fixed")
+                            except Exception as plex:
+                                print(f"[Worker {self.worker_id}] Per-line retry error: {plex}")
+                        
+                        job['per_line_retried'] = True  # prevent infinite per-line retry loop
                     
                     # Ghi nhan usage
                     usage_tokens = data.get('usage', {}).get('total_tokens', estimated_tokens)
@@ -841,17 +923,20 @@ Correct output:
                     job_queue.task_done()
                     
                 elif resp.status_code == 429: 
-                    # 429 = rate limit → sleep key, cap retry 
-                    retry_after = resp.headers.get("Retry-After")
-                    if retry_after and retry_after.isdigit():
-                        wait_time = int(retry_after)
-                    else:
-                        wait_time = 8
-                    
-                    job['rate_limit_retries'] = job.get('rate_limit_retries', 0) + 1
+                    # 429 = rate limit → exponential backoff + jitter
+                    retry_count = job.get('rate_limit_retries', 0) + 1
+                    job['rate_limit_retries'] = retry_count
                     max_429_retries = 5
                     
-                    if job['rate_limit_retries'] > max_429_retries:
+                    retry_after = resp.headers.get("Retry-After")
+                    if retry_after and retry_after.isdigit():
+                        base_wait = int(retry_after)
+                    else:
+                        # Exponential: 8s → 16s → 32s → 60s cap + ±20% jitter
+                        base_wait = min(8 * (2 ** (retry_count - 1)), 60)
+                    wait_time = base_wait * random.uniform(0.8, 1.2)
+                    
+                    if retry_count > max_429_retries:
                         # Skip job after 5 rate-limit hits
                         print(f"[Worker {self.worker_id}] Chunk {chunk_index} skip sau {max_429_retries} lan 429.")
                         if job['file_id'] not in results_dict:
@@ -859,11 +944,12 @@ Correct output:
                         results_dict[job['file_id']][chunk_index] = {"job": job, "translated_texts": original_text}
                         job_queue.task_done()
                     else:
-                        print(f"[Worker {self.worker_id} | {account_name}] 429 ({job['rate_limit_retries']}/{max_429_retries}). Sleep {wait_time}s...")
+                        print(f"[Worker {self.worker_id} | {account_name}] 429 #{retry_count}. Exp backoff {wait_time:.1f}s...")
                         await self.key_manager.mark_sleep(api_key, wait_time)
                         await self.key_manager.record_usage(api_key, 0, success=False, is_429=True)
                         await job_queue.put(job)
                         job_queue.task_done()
+
                 else:
                     # Lỗi thật (500, 401, etc.) → tăng error_retries
                     print(f"[Worker {self.worker_id} | {account_name}] Loi API {resp.status_code} o chunk {chunk_index}: {resp.text[:100]}")
@@ -1158,10 +1244,16 @@ class ThreadedWorkerPool:
             await bridge_queue.put({'type': 'worker_exit'})
         
         tasks = []
-        for w in workers:
-            tasks.append(asyncio.create_task(
-                patched_process(w, self.job_queue, self.results_dict)
-            ))
+        for i, w in enumerate(workers):
+            # Stagger worker starts: delay = min(i × 0.4s, 2.0s max)
+            # Prevents burst regardless of worker count (15 workers = still max 2s spread)
+            stagger_delay = min(i * 0.4, 2.0)
+            async def make_staggered(worker=w, delay=stagger_delay):
+                if delay > 0:
+                    await asyncio.sleep(delay)
+                await patched_process(worker, self.job_queue, self.results_dict)
+            tasks.append(asyncio.create_task(make_staggered()))
+
         tasks.append(asyncio.create_task(bridge_forwarder()))
         
         await asyncio.gather(*tasks)
@@ -1245,6 +1337,9 @@ async def run_translation(file_path: str, target_lang: str, custom_keys: list = 
             
     # Buoc 4: Tao APIKeyManager
     key_manager = APIKeyManager(flat_keys, limiters)
+    
+    # Register for health dashboard
+    _active_key_managers[file_path] = key_manager
     
     # Setup pause/resume events
     key_manager.resume_event = asyncio.Event()
