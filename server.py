@@ -1137,6 +1137,12 @@ async def cookie_debug():
         return {"ok": False, "error": str(e)}
 
 
+# ── SERVE FRONTEND ──
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("index.html", media_type="text/html")
+
+
 # ── HEALTH CHECK ──
 @app.get("/health")
 async def health():
