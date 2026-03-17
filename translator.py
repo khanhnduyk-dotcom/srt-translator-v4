@@ -829,6 +829,8 @@ CORRECT output:
                 _port = os.environ.get('PORT', '8000')
                 use_endpoint = f"http://localhost:{_port}/cookie-translate"
                 headers = {"Content-Type": "application/json"}  # No auth header needed
+                if error_retries == 0 and chunk_index == 0:
+                    print(f"[Worker {self.worker_id}] Cookie mode → {use_endpoint}")
             
             try:
                 # Jitter: random delay 0-300ms to avoid synchronized burst from multiple workers

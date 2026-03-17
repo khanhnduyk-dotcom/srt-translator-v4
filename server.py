@@ -275,6 +275,16 @@ async def websocket_translate(ws: WebSocket):
             keys_list = expanded_cookies + non_cookie_keys
             mode_label = "Hybrid" if non_cookie_keys else "Cookie-only"
             print(f"[WS] {mode_label}: {pool_size} cookie + {len(non_cookie_keys)} API key workers = {len(keys_list)} total")
+        elif has_cookie and cookie_pool.count() == 0:
+            # Cookie pool empty — no cookies to use
+            non_cookie_keys = [k for k in keys_list if k != "cookie"]
+            if not non_cookie_keys:
+                await ws.send_json({"type": "error", "message": "Cookie Pool trống! Paste cookie vào pool trước khi dịch."})
+                return
+            else:
+                # Hybrid mode but no cookies — use only API keys
+                keys_list = non_cookie_keys
+                print(f"[WS] Cookie pool empty, using {len(non_cookie_keys)} API keys only")
         
         # 5. Listener cho client commands (cancel/pause/resume)
         key_manager_ref = {'ref': None}  # Will be set when translation starts
